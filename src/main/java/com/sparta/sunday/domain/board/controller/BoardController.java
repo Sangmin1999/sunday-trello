@@ -1,11 +1,13 @@
 package com.sparta.sunday.domain.board.controller;
 
+import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.board.dto.request.BoardRequest;
 import com.sparta.sunday.domain.board.dto.response.BoardResponse;
 import com.sparta.sunday.domain.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,8 +17,12 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping("/{workspaceId}")
-    public ResponseEntity<String> createBoard(@PathVariable Long workspaceId, @RequestBody BoardRequest request) {
-        boardService.createBoard(workspaceId, request);
+    public ResponseEntity<String> createBoard(
+            @PathVariable Long workspaceId,
+            @RequestBody BoardRequest request,
+            @AuthenticationPrincipal AuthUser authUser
+            ) {
+        boardService.createBoard(workspaceId, request, authUser.getUserId());
         return ResponseEntity.ok("성공적으로 생성되었습니다.");
     }
 
