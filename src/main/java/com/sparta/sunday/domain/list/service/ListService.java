@@ -64,7 +64,7 @@ public class ListService {
     }
 
     private void validateRole(AuthUser authUser) {
-        if (authUser.getAuthorities().contains(new SimpleGrantedAuthority("READ_ONLY"))) {
+        if (authUser.getAuthorities().contains(new SimpleGrantedAuthority("MEMBER"))) {
             throw new ReadOnlyRoleException("읽기 전용 멤버는 작업을 수행할 수 없습니다.");
         }
     }
