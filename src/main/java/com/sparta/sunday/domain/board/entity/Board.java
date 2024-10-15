@@ -1,4 +1,4 @@
-package com.sparta.sunday.domain.board;
+package com.sparta.sunday.domain.board.entity;
 
 import com.sparta.sunday.domain.common.entity.Timestamped;
 import jakarta.persistence.Entity;
@@ -16,4 +16,9 @@ public class Board extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String title;
+
+    public Board(String title) {
+        this.title = title;
+    }
 }

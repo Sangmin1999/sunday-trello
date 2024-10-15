@@ -1,5 +1,6 @@
 package com.sparta.sunday.config;
 
+import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.user.enums.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -39,12 +40,11 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
             try {
                 Claims claims = jwtUtil.extractClaims(jwt);
                 Long userId = Long.valueOf(claims.getSubject());
-                String username = claims.get("username", String.class);
                 String email = claims.get("email", String.class);
                 UserRole userRole = UserRole.of(claims.get("userRole", String.class));
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                    AuthUser authUser = new AuthUser(userId, username, email, userRole);
+                    AuthUser authUser = new AuthUser(userId, email, userRole);
 
                     JwtAuthenticationToken authenticationToken = new JwtAuthenticationToken(authUser);
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));

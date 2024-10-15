@@ -38,3 +38,5 @@ public class User extends Timestamped {
         this.userRole = userRole;
     }
 }
+
+
