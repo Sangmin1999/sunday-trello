@@ -2,10 +2,12 @@ package com.sparta.sunday.domain.attachment.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.sparta.sunday.config.AuthUser;
 import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
 import com.sparta.sunday.domain.attachment.entity.Attachment;
 import com.sparta.sunday.domain.attachment.repository.AttachmentRepository;
 import com.sparta.sunday.domain.common.exception.InvalidRequestException;
+import com.sparta.sunday.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -51,7 +53,7 @@ public class AttachmentService {
                     file.getSize(),
                     fileUrl,
                     file.getName(),
-                    user.getName(),
+                    user.getUsername(),
                     card
             );
 
