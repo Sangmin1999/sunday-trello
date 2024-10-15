@@ -26,4 +26,9 @@ public class List extends Timestamped {
         this.order = order;
         this.board = board;
     }
+
+    public void update(String title, int order) {
+        this.title = title;
+        this.order = order;
+    }
 }

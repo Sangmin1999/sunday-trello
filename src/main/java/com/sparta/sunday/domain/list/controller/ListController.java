@@ -24,4 +24,13 @@ public class ListController {
     ) {
         return ResponseEntity.ok(listService.saveList(boardId, authUser, listRequest));
     }
+
+    @PutMapping("/{listId}")
+    public ResponseEntity<ListResponse> updateList(
+            @PathVariable Long listId,
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestBody ListRequest listRequest
+    ) {
+        return ResponseEntity.ok(listService.updateList(listId, authUser, listRequest));
+    }
 }

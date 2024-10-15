@@ -42,9 +42,21 @@ public class ListService {
 
     }
 
+    @Transactional
+    public ListResponse updateList(Long listId, AuthUser authUser, ListRequest listRequest) {
+
+        validateRole(authUser);
+        List list = listRepository.findById(listId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 리스트가 없습니다"));
+
+        list.update(listRequest.getTitle(), listRequest.getOrder());
+        return new ListResponse(list);
+    }
+
     private void validateRole(AuthUser authUser) {
         if (authUser.getAuthorities().contains(new SimpleGrantedAuthority("READ_ONLY"))) {
             throw new ReadOnlyRoleException("읽기 전용 멤버는 작업을 수행할 수 없습니다.");
         }
     }
+
 }
