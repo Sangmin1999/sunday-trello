@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class AttachmentController {
     private final AttachmentService attachmentService;
 
-    @PostMapping("/boards/{boardId}/card/{cardId}/attachments")
+    @PostMapping("/card/{cardId}/attachments")
     public ResponseEntity<UploadAttachmentResponse> uploadAttachment(@RequestParam("file") MultipartFile file,
                                                                      @PathVariable long cardId
                                                                      @AuthenticationPrincipal AuthUser authUser) {
