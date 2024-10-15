@@ -18,6 +18,9 @@ public class Board extends Timestamped {
     @Column(name = "title")
     private String title;
 
+    @Column(name = "content")
+    private String content;
+
     @Column(name = "img_url")
     private String imgUrl;
 
@@ -32,15 +35,35 @@ public class Board extends Timestamped {
     @JoinColumn(name = "workspace_id")
     private Workspace workspace;
 
-    public Board(User user, Workspace workspace, String title, String background, String imageOrColor) {
+    public Board(
+            User user,
+            Workspace workspace,
+            String title,
+            String content,
+            String background,
+            String imageOrColor
+    ) {
         this.creator = user;
         this.workspace = workspace;
         this.title = title;
+        this.content = content;
 
-        if(imageOrColor.equals("image")) {
+        if (imageOrColor.equals("image")) {
             this.imgUrl = background;
-        } else if(imageOrColor.equals("color")) {
+        } else if (imageOrColor.equals("color")) {
             this.backgroundColor = background;
         }
+    }
+
+    public void update(
+            String title,
+            String content,
+            String imgUrl,
+            String backgroundColor
+    ) {
+        this.title = title;
+        this.content = content;
+        this.imgUrl = imgUrl;
+        this.backgroundColor = backgroundColor;
     }
 }

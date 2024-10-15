@@ -32,22 +32,6 @@ public class WorkspaceService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final UserRepository userRepository;
 
-    public void checkUserAuthorization(User user) {
-
-        if (!user.getUserRole().equals(UserRole.ROLE_ADMIN)) {
-            throw new UnAuthorizedException("해당 기능에 대한 권한이 없습니다.");
-        }
-    }
-
-    private void checkWorkspaceAuthorization(User user, Workspace workspace) {
-
-        WorkspaceMember workspaceMember = workspaceMemberRepository.findByMemberIdAndWorkspaceId(user.getId(), workspace.getId());
-
-        if(!workspaceMember.getRole().equals(WorkspaceRole.MANAGER)) {
-            throw new UnAuthorizedException("해당 기능에 대한 권한이 없습니다.");
-        }
-    }
-
     @Transactional
     public void createWorkspace(WorkspaceRequest request, Long userId) {
 
@@ -143,5 +127,21 @@ public class WorkspaceService {
                 workspace,
                 user
         ));
+    }
+
+    public void checkUserAuthorization(User user) {
+
+        if (!user.getUserRole().equals(UserRole.ROLE_ADMIN)) {
+            throw new UnAuthorizedException("해당 기능에 대한 권한이 없습니다.");
+        }
+    }
+
+    private void checkWorkspaceAuthorization(User user, Workspace workspace) {
+
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByMemberIdAndWorkspaceId(user.getId(), workspace.getId());
+
+        if(!workspaceMember.getRole().equals(WorkspaceRole.MANAGER)) {
+            throw new UnAuthorizedException("해당 기능에 대한 권한이 없습니다.");
+        }
     }
 }

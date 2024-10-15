@@ -26,27 +26,41 @@ public class BoardController {
         return ResponseEntity.ok("성공적으로 생성되었습니다.");
     }
 
-    @GetMapping("/{boardId}")
-    public ResponseEntity<BoardResponse> getBoard(@PathVariable Long boardId) {
-        return ResponseEntity.ok(boardService.getBoard(boardId));
+    @GetMapping("/{boardId}/workspace/{workspaceId}")
+    public ResponseEntity<BoardResponse> getBoard(
+            @PathVariable Long workspaceId,
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal AuthUser authUser) {
+        return ResponseEntity.ok(boardService.getBoard(workspaceId, boardId, authUser.getUserId()));
     }
 
-    @GetMapping("")
+    @GetMapping("/workspace/{workspaceId}")
     public ResponseEntity<Page<BoardResponse>> getBoardList(
             @RequestParam int page,
-            @RequestParam int size
+            @RequestParam int size,
+            @PathVariable Long workspaceId,
+            @AuthenticationPrincipal AuthUser authUser
     ) {
-        return ResponseEntity.ok(boardService.getBoardList(page, size));
+        return ResponseEntity.ok(boardService.getBoardList(page, size, workspaceId, authUser.getUserId()));
     }
 
-    @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardResponse> updateBoard(@PathVariable Long boardId, @RequestBody BoardRequest request) {
-        return ResponseEntity.ok(boardService.updateBoard(boardId, request));
+    @PatchMapping("/{boardId}/workspace/{workspaceId}")
+    public ResponseEntity<BoardResponse> updateBoard(
+            @PathVariable Long boardId,
+            @PathVariable Long workspaceId,
+            @AuthenticationPrincipal AuthUser authUser,
+            @RequestBody BoardRequest request
+    ) {
+        return ResponseEntity.ok(boardService.updateBoard(boardId, workspaceId, authUser.getUserId(), request));
     }
 
-    @DeleteMapping("/{boardId}")
-    public ResponseEntity<String> deleteBoard(@PathVariable Long boardId) {
-        boardService.deleteBoard(boardId);
+    @DeleteMapping("/{boardId}/workspace/{workspaceId}")
+    public ResponseEntity<String> deleteBoard(
+            @PathVariable Long boardId,
+            @PathVariable Long workspaceId,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        boardService.deleteBoard(boardId, workspaceId, authUser.getUserId());
         return ResponseEntity.ok("성공적으로 삭제되었습니다.");
     }
 }
