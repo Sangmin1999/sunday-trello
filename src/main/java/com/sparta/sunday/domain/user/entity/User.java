@@ -58,3 +58,5 @@ public class User extends Timestamped {
         return new User(authUser.getUserId(), authUser.getEmail(), role);
     }
 }
+
+
