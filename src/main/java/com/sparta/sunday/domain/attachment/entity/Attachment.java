@@ -23,7 +23,7 @@ public class Attachment extends Timestamped {
 
     private String fileName;
 
-    private String creator;
+    private String uploader;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "card_id", nullable = false)
@@ -34,14 +34,14 @@ public class Attachment extends Timestamped {
                       int size,
                       String path,
                       String fileName,
-                      String creator,
+                      String uploader,
                       Card card)
     {
         this.format = format;
         this.size = size;
         this.path = path;
         this.fileName = fileName;
-        this.creator = creator;
+        this.uploader = uploader;
         this.card = card;
     }
 }
