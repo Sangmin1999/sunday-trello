@@ -3,8 +3,10 @@ package com.sparta.sunday.domain.comment.controller;
 import com.sparta.sunday.domain.comment.dto.CommentRequest;
 import com.sparta.sunday.domain.comment.dto.CommentResponse;
 import com.sparta.sunday.domain.comment.service.CommentService;
+import com.sparta.sunday.domain.common.dto.AuthUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +20,10 @@ public class CommentController {
 
 //    @PostMapping("/{boardId}/comments")
     @PostMapping("/comments")
-    public ResponseEntity<CommentResponse> saveComment(@RequestBody CommentRequest commentRequest) {
-        return ResponseEntity.ok(commentService.saveComment(commentRequest));
+    public ResponseEntity<CommentResponse> saveComment(
+            @RequestBody CommentRequest commentRequest,
+            @AuthenticationPrincipal AuthUser authUser) {
+        return ResponseEntity.ok(commentService.saveComment(commentRequest, authUser));
     }
 
 //    @GetMapping("/{boardId}/comments")
@@ -31,12 +35,15 @@ public class CommentController {
     @PatchMapping("/comments/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
             @RequestBody CommentRequest commentRequest,
-            @PathVariable Long commentId) {
-        return ResponseEntity.ok(commentService.updateComment(commentRequest, commentId));
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal AuthUser authUser) {
+        return ResponseEntity.ok(commentService.updateComment(commentRequest, commentId, authUser));
     }
 
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<String> deleteComment(@PathVariable Long commentId) {
-        return ResponseEntity.ok(commentService.deleteComment(commentId));
+    public ResponseEntity<String> deleteComment(
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal AuthUser authUser) {
+        return ResponseEntity.ok(commentService.deleteComment(commentId, authUser));
     }
 }

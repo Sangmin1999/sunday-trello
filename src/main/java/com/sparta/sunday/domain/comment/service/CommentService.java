@@ -4,6 +4,9 @@ import com.sparta.sunday.domain.comment.dto.CommentRequest;
 import com.sparta.sunday.domain.comment.dto.CommentResponse;
 import com.sparta.sunday.domain.comment.entity.Comment;
 import com.sparta.sunday.domain.comment.repository.CommentRepository;
+import com.sparta.sunday.domain.common.dto.AuthUser;
+import com.sparta.sunday.domain.user.entity.User;
+import com.sparta.sunday.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,15 +19,20 @@ import java.util.List;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public CommentResponse saveComment(CommentRequest commentRequest) {
+    public CommentResponse saveComment(CommentRequest commentRequest, AuthUser authUser) {
 
-        Comment comment = Comment.of(commentRequest);
+        User user = userRepository.findById(authUser.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("없는 유저"));
+
+        Comment comment = Comment.of(commentRequest, user);
 
         commentRepository.save(comment);
 
         return new CommentResponse(comment.getId(), comment.getContent());
+
     }
 
     public List<CommentResponse> getComment() {
@@ -35,22 +43,37 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponse updateComment(CommentRequest commentRequest, Long commentId) {
+    public CommentResponse updateComment(CommentRequest commentRequest, Long commentId, AuthUser authUser) {
 
-        Comment comment = commentRepository.findByIdAndDeletedAtNull(commentId);
+        Comment comment = findById(commentId, authUser);
 
         comment.update(commentRequest);
 
         return new CommentResponse(comment.getId(), comment.getContent());
+
     }
 
     @Transactional
-    public String deleteComment(Long commentId) {
+    public String deleteComment(Long commentId, AuthUser authUser) {
 
-        Comment comment = commentRepository.findByIdAndDeletedAtNull(commentId);
+        Comment comment = findById(commentId, authUser);
 
         comment.delete(LocalDateTime.now());
 
         return "댓글이 삭제되었습니다.";
+
     }
+
+    public Comment findById(Long commentId, AuthUser authUser) {
+
+        Comment comment = commentRepository.findByIdAndDeletedAtNull(commentId);
+
+        if (authUser.getUserId() != comment.getUser().getId()) {
+            throw new IllegalArgumentException("본인 댓글이 아닙니다.");
+        }
+
+        return comment;
+
+    }
+
 }
