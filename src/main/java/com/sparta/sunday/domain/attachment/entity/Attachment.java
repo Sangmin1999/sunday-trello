@@ -17,7 +17,7 @@ public class Attachment extends Timestamped {
 
     private String format;
 
-    private int size;
+    private Long size;
 
     private String path;
 
@@ -31,7 +31,7 @@ public class Attachment extends Timestamped {
 
 
     public Attachment(String format,
-                      int size,
+                      Long size,
                       String path,
                       String fileName,
                       String uploader,
