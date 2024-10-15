@@ -53,10 +53,21 @@ public class ListService {
         return new ListResponse(list);
     }
 
+    @Transactional
+    public void deleteList(Long listId, AuthUser authUser) {
+
+        validateRole(authUser);
+        List list = listRepository.findById(listId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 리스트가 없습니다"));
+
+        listRepository.delete(list);
+    }
+
     private void validateRole(AuthUser authUser) {
         if (authUser.getAuthorities().contains(new SimpleGrantedAuthority("READ_ONLY"))) {
             throw new ReadOnlyRoleException("읽기 전용 멤버는 작업을 수행할 수 없습니다.");
         }
     }
+
 
 }

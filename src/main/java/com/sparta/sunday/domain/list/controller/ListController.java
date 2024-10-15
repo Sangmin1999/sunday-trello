@@ -33,4 +33,13 @@ public class ListController {
     ) {
         return ResponseEntity.ok(listService.updateList(listId, authUser, listRequest));
     }
+
+    @DeleteMapping("/{listId}")
+    public ResponseEntity<Void> deleteList(
+            @PathVariable Long listId,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        listService.deleteList(listId, authUser);
+        return ResponseEntity.noContent().build();
+    }
 }
