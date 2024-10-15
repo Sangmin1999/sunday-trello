@@ -47,7 +47,6 @@ public class AuthService {
         );
     }
 
-    @Transactional(readOnly = true)
     public String signin(SigninRequest signinRequest) {
 
         User user = userRepository.findByEmail(signinRequest.getEmail())
