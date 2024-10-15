@@ -1,6 +1,6 @@
 package com.sparta.sunday.domain.list.dto.response;
 
-import com.sparta.sunday.domain.list.entity.List;
+import com.sparta.sunday.domain.list.entity.BoardList;
 import lombok.Getter;
 
 @Getter
@@ -18,12 +18,12 @@ public class ListResponse {
         this.boardId = boardId;
     }
 
-    public ListResponse(List list) {
+    public ListResponse(BoardList boardList) {
         this(
-                list.getId(),
-                list.getTitle(),
-                list.getOrder(),
-                list.getBoard().getId()
+                boardList.getId(),
+                boardList.getTitle(),
+                boardList.getOrder(),
+                boardList.getBoard().getId()
         );
     }
 }
