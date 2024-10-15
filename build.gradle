@@ -31,7 +31,7 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.boot:spring-boot-security-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.3.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 
@@ -45,6 +45,12 @@ dependencies {
 
     // 암호화
     implementation 'at.favre.lib:bcrypt:0.10.2'
+
+    // slack 알림
+    implementation 'com.slack.api:bolt:1.31.0'
+    implementation 'com.slack.api:bolt-servlet:1.31.0'
+    implementation 'com.slack.api:bolt-jetty:1.31.0'
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
 }
 
 tasks.named('test') {
