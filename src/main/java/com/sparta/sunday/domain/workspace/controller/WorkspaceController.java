@@ -66,4 +66,17 @@ public class WorkspaceController {
         workspaceService.inviteMemberToWorkspace(request, authUser.getUserId(), workspaceId);
         return ResponseEntity.ok("성공적으로 초대 되었습니다.");
     }
+
+//    @PatchMapping("/{workspaceId}")
+//    public ResponseEntity<ChangeWorkspaceMemeberRoleRequest> changeWorkspaceMemberRole(
+//            @PathVariable Long workspaceId,
+//            ChangeWorkspaceMemeberRoleRequest changeWorkspaceMemeberRoleRequest,
+//            @AuthenticationPrincipal AuthUser authUser
+//    ) {
+//        return ResponseEntity.ok(workspaceService.changeWorkspaceMemberRole(
+//                workspaceId,
+//                changeWorkspaceMemeberRoleRequest,
+//                authUser.getUserId()
+//        ));
+//    }
 }

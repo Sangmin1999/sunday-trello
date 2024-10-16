@@ -5,6 +5,7 @@ import com.sparta.sunday.domain.common.validator.AuthorizationValidator;
 import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.user.repository.UserRepository;
 import com.sparta.sunday.domain.user.service.AuthService;
+import com.sparta.sunday.domain.workspace.dto.request.ChangeWorkspaceMemeberRoleRequest;
 import com.sparta.sunday.domain.workspace.dto.request.InviteWorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.request.WorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.response.WorkspaceResponse;
@@ -130,4 +131,13 @@ public class WorkspaceService {
         return workspaceRepository.findById(workspaceId).orElseThrow(
                 () -> new EntityNotFoundException("해당 워크스페이스가 존재하지 않습니다."));
     }
+
+    public ChangeWorkspaceMemeberRoleRequest changeWorkspaceMemberRole(
+            Long workspaceId,
+            ChangeWorkspaceMemeberRoleRequest changeWorkspaceMemeberRoleRequest,
+            Long userId
+    ) {
+        return null;
+    }
+
 }
