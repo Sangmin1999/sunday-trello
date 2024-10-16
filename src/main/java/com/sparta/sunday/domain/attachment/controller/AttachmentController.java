@@ -28,11 +28,6 @@ public class AttachmentController {
         return attachmentService.getAttachment(cardId,attachmentsId,authUser);
     }*/
 
-    @PostMapping("/uploadTest")
-    public void uploadAttachmentTest(@RequestParam("file") MultipartFile file) {
-        attachmentService.uploadAttachmentTest(file);
-    }
-
     @GetMapping("/attachments/{attachmentsId}")
     public void getAttachmentTest(@PathVariable Long attachmentsId) {
         attachmentService.getAttachmentTest(attachmentsId);

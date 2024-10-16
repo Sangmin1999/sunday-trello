@@ -17,9 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.smartcardio.Card;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -35,86 +33,46 @@ public class AttachmentService {
     @Value("${cloud.aws.s3.bucketName}")
     private String bucketName;
 
+    @Value("${cloud.aws.region.static}")
+    private String region;
 
-    @Transactional
     public ResponseEntity<UploadAttachmentResponse> uploadAttachment(MultipartFile file, Long cardId, AuthUser authUser) {
-        try {
 
-            User user = User.fromAuthUser(authUser);
-            /*Card card = cardRepository.findById(cardId).orElseThrow(() ->
-                    new InvalidRequestException("Card not found"));*/
+        User user = User.fromAuthUser(authUser);
+        /*Card card = cardRepository.findById(cardId).orElseThrow(() ->
+                new InvalidRequestException("Card not found"));*/
+        String fileName = makeFileName(file);
+        String URL = makeFileUrl(fileName,bucketName,region);
+        uploadFile(file,bucketName);
+        UploadAttachmentResponse uploadAttachmentResponse = new UploadAttachmentResponse(
+                fileName,
+                user.getId(),
+                URL
+        );
 
-            String fileName = UUID.randomUUID() + file.getOriginalFilename();
-            String fileUrl = "https://" + bucketName + ".s3." + "ap-northeast-2" + ".amazonaws.com/" + fileName;
-
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType(file.getContentType());
-            metadata.setContentLength(file.getSize());
-
-            amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
-
-            Attachment attachment = new Attachment(
-                    file.getContentType(),
-                    file.getSize(),
-                    fileUrl,
-                    file.getName(),
-                    user.getId()/*,
-                    card*/
-            );
-
-            attachmentRepository.save(attachment);
-            UploadAttachmentResponse uploadAttachmentResponse = new UploadAttachmentResponse(
-                    attachment.getId(),
-                    1L,
-                    attachment.getFileName(),
-                    attachment.getUploaderId(),
-                    attachment.getPath()
-            );
-
-            return ResponseEntity.ok(uploadAttachmentResponse);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.ok(uploadAttachmentResponse);
     }
 
+    /*--------------------------------------------------util---------------------------------------------------------------*/
+    public String makeFileName(MultipartFile file){
+        return UUID.randomUUID() + file.getOriginalFilename();
+    }
 
+    public String makeFileUrl(String fileName, String bucketName, String region){
+        return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileName;
+    }
 
+    public void uploadFile(MultipartFile file,String bucketName) {
 
-    @Transactional
-    public void uploadAttachmentTest(MultipartFile file) {
-        try
-        {
-        String fileName = UUID.randomUUID() + file.getOriginalFilename();
-        String fileUrl = "https://" + bucketName + ".s3." + "ap-northeast-2" + ".amazonaws.com/" + fileName;
-
+        String fileName = makeFileName(file);
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
 
-
-        System.out.println("들어가기 전");
-        amazonS3Client.putObject(bucketName, fileUrl, file.getInputStream(), metadata);
-        System.out.println("나왔다");
-        Attachment attachment = new Attachment(
-                file.getContentType(),
-                file.getSize(),
-                fileUrl,
-                file.getName(),
-                1L
-        );
-
-        attachmentRepository.save(attachment);
-        UploadAttachmentResponse uploadAttachmentResponse = new UploadAttachmentResponse(
-                attachment.getId(),
-                1L,
-                attachment.getFileName(),
-                attachment.getUploaderId(),
-                attachment.getPath()
-        );
+        try {
+            amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -129,7 +87,4 @@ public class AttachmentService {
         System.out.println(attachment.getFormat());
         System.out.println(attachment.getSize());
     }
-
-
-
 }
