@@ -1,10 +1,14 @@
 package com.sparta.sunday.domain.user.entity;
 
+import com.sparta.sunday.config.AuthUser;
 import com.sparta.sunday.domain.common.entity.Timestamped;
 import com.sparta.sunday.domain.user.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.rmi.ServerException;
 
 @Entity
 @Getter
@@ -37,4 +41,14 @@ public class User extends Timestamped {
         this.email = email;
         this.userRole = userRole;
     }
+
+    /*public static User fromAuthUser(AuthUser authUser) {
+        UserRole role = UserRole.of(
+                authUser.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .findFirst()
+                        .orElseThrow(() -> new ServerException("권한이 없습니다."))
+        );
+        return new User(authUser.getId(), authUser.getEmail(), role);
+    }*/
 }
