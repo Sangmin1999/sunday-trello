@@ -1,6 +1,7 @@
 package com.sparta.sunday.domain.user.service;
 
 import com.sparta.sunday.config.JwtUtil;
+import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
 import com.sparta.sunday.domain.user.dto.SigninRequest;
 import com.sparta.sunday.domain.user.dto.SignupRequest;
 import com.sparta.sunday.domain.user.entity.User;
@@ -57,6 +58,10 @@ public class AuthService {
                 user.getEmail(),
                 user.getUserRole()
         );
+    }
+
+    public User findUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("해당 유저가 존재하지 않습니다."));
     }
 }
 

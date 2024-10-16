@@ -41,16 +41,16 @@ public class Board extends Timestamped {
             String title,
             String content,
             String background,
-            String imageOrColor
+            String backgroundType
     ) {
         this.creator = user;
         this.workspace = workspace;
         this.title = title;
         this.content = content;
 
-        if (imageOrColor.equals("image")) {
+        if (backgroundType.equals("image")) {
             this.imgUrl = background;
-        } else if (imageOrColor.equals("color")) {
+        } else if (backgroundType.equals("color")) {
             this.backgroundColor = background;
         }
     }
@@ -58,12 +58,18 @@ public class Board extends Timestamped {
     public void update(
             String title,
             String content,
-            String imgUrl,
-            String backgroundColor
+            String background,
+            String backgroundType
     ) {
         this.title = title;
         this.content = content;
-        this.imgUrl = imgUrl;
-        this.backgroundColor = backgroundColor;
+
+        if (backgroundType.equals("image")) {
+            this.imgUrl = background;
+            this.backgroundColor = null;
+        } else if (backgroundType.equals("color")) {
+            this.imgUrl = null;
+            this.backgroundColor = background;
+        }
     }
 }
