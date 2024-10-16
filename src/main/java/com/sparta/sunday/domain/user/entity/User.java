@@ -7,8 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-
-import java.rmi.ServerException;
+import com.sparta.sunday.domain.common.exception.ServerException;
 
 @Entity
 @Getter
@@ -45,13 +44,13 @@ public class User extends Timestamped {
         this.userRole = userRole;
     }
 
-    public User(Long userId, String email, UserRole role) {
+    public User(Long userId,  String email, UserRole role) {
         this.id = userId;
         this.email = email;
         this.userRole = role;
     }
 
-    public static User fromAuthUser(AuthUser authUser) throws ServerException {
+    public static User fromAuthUser(AuthUser authUser) {
         UserRole role = UserRole.of(
                 authUser.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
@@ -65,5 +64,3 @@ public class User extends Timestamped {
         this.signedOut = true;
     }
 }
-
-
