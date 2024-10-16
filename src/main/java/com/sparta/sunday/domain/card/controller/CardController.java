@@ -15,12 +15,13 @@ public class CardController {
 
     private final CardService cardService;
 
-    @PostMapping("/lists/{listId}/cards")
+    @PostMapping("/{workspaceId}/lists/{listId}/cards")
     public ResponseEntity<CardResponse> createCard(
+            @PathVariable Long workspaceId,
             @PathVariable Long listId,
             @RequestBody CardRequest cardRequest,
             @AuthenticationPrincipal AuthUser authUser
     ) {
-        return ResponseEntity.ok(cardService.createCard(listId, cardRequest, authUser));
+        return ResponseEntity.ok(cardService.createCard(workspaceId, listId, cardRequest, authUser));
     }
 }

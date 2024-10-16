@@ -7,13 +7,12 @@ import com.sparta.sunday.domain.card.entity.CardManager;
 import com.sparta.sunday.domain.card.repository.CardManagerRepository;
 import com.sparta.sunday.domain.card.repository.CardRepository;
 import com.sparta.sunday.domain.common.dto.AuthUser;
-import com.sparta.sunday.domain.common.exception.UnAuthorizedException;
+import com.sparta.sunday.domain.common.validator.AuthorizationValidator;
 import com.sparta.sunday.domain.list.entity.BoardList;
 import com.sparta.sunday.domain.list.repository.ListRepository;
 import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.user.repository.UserRepository;
 import com.sparta.sunday.domain.workspace.enums.WorkspaceRole;
-import com.sparta.sunday.domain.workspace.repository.WorkspaceMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,16 +29,15 @@ public class CardService {
     private final CardActivityService cardActivityService;
     private final CardManagerRepository cardManagerRepository;
     private final UserRepository userRepository;
-    private final WorkspaceMemberRepository workspaceMemberRepository;
+    private final AuthorizationValidator authorizationValidator;
 
     @Transactional
-    public CardResponse createCard(Long listId, CardRequest cardRequest, AuthUser authUser) {
-        checkManagerAuthorization(authUser);
+    public CardResponse createCard(Long workspaceId, Long listId, CardRequest cardRequest, AuthUser authUser) {
+        authorizationValidator.checkWorkspaceAuthorization(authUser.getUserId(), workspaceId, WorkspaceRole.MEMBER);
 
         BoardList boardList = listRepository.findById(listId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리스트가 없습니다"));
 
-        System.out.println(cardRequest.getDueTo()+ "gg");
         Card card = new Card(
                 cardRequest.getTitle(),
                 cardRequest.getDescription(),
@@ -64,8 +62,4 @@ public class CardService {
         card.addManager(cardManager); // Card 엔티티에 매니저 추가
     }
 
-    private void checkManagerAuthorization(AuthUser authUser) {
-        workspaceMemberRepository.findByMemberIdAndRole(authUser.getUserId(), WorkspaceRole.MANAGER)
-                .orElseThrow(() -> new UnAuthorizedException("MANAGER 권한이 필요합니다."));
-    }
 }
