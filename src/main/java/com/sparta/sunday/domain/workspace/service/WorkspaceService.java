@@ -4,6 +4,7 @@ import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
 import com.sparta.sunday.domain.common.validator.AuthorizationValidator;
 import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.user.service.AuthService;
+import com.sparta.sunday.domain.workspace.dto.request.ChangeWorkspaceMemeberRoleRequest;
 import com.sparta.sunday.domain.workspace.dto.request.InviteWorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.request.WorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.response.WorkspaceResponse;
