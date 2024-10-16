@@ -6,7 +6,7 @@ import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.common.exception.ReadOnlyRoleException;
 import com.sparta.sunday.domain.list.dto.request.ListRequest;
 import com.sparta.sunday.domain.list.dto.response.ListResponse;
-import com.sparta.sunday.domain.list.entity.List;
+import com.sparta.sunday.domain.list.entity.BoardList;
 import com.sparta.sunday.domain.list.repository.ListRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -30,15 +30,15 @@ public class ListService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 보드가 없습니다"));
 
 
-        List newList = new List(
+        BoardList newBoardList = new BoardList(
                 listRequest.getTitle(),
                 listRequest.getOrder(),
                 board
         );
 
-        List savedList = listRepository.save(newList);
+        BoardList savedBoardList = listRepository.save(newBoardList);
 
-        return new ListResponse(savedList);
+        return new ListResponse(savedBoardList);
 
     }
 
@@ -46,21 +46,21 @@ public class ListService {
     public ListResponse updateList(Long listId, AuthUser authUser, ListRequest listRequest) {
 
         validateRole(authUser);
-        List list = listRepository.findById(listId)
+        BoardList boardList = listRepository.findById(listId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리스트가 없습니다"));
 
-        list.update(listRequest.getTitle(), listRequest.getOrder());
-        return new ListResponse(list);
+        boardList.update(listRequest.getTitle(), listRequest.getOrder());
+        return new ListResponse(boardList);
     }
 
     @Transactional
     public void deleteList(Long listId, AuthUser authUser) {
 
         validateRole(authUser);
-        List list = listRepository.findById(listId)
+        BoardList boardList = listRepository.findById(listId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리스트가 없습니다"));
 
-        listRepository.delete(list);
+        listRepository.delete(boardList);
     }
 
     private void validateRole(AuthUser authUser) {
