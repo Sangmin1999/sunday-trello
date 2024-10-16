@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final String slackLink = "https://join.slack.com/t/sunday-an42376/shared_invite/zt-2si1lr99f-XPFWzIrJHu94Tzop5AMzNg";
 
     @PostMapping("/auth/signup")
     public ResponseEntity<String> signup(@RequestBody @Valid SignupRequest signupRequest, BindingResult result) {
@@ -32,7 +33,7 @@ public class AuthController {
         return ResponseEntity
                 .ok()
                 .header("Authorization", bearerToken)
-                .build();
+                .body(slackLink);
     }
 
     @PostMapping("/auth/signin")

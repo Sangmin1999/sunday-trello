@@ -1,5 +1,8 @@
 package com.sparta.sunday.domain.workspace.service;
 
+import com.slack.api.methods.SlackApiException;
+import com.sparta.sunday.domain.alarm.entity.AlarmType;
+import com.sparta.sunday.domain.alarm.service.AlarmService;
 import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
 import com.sparta.sunday.domain.common.validator.AuthorizationValidator;
 import com.sparta.sunday.domain.user.entity.User;
@@ -22,6 +25,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -32,6 +37,7 @@ public class WorkspaceService {
     private final UserRepository userRepository;
     private final AuthorizationValidator authorizationValidator;
     private final AuthService authService;
+    private final AlarmService alarmService;
 
     @Transactional
     public void createWorkspace(WorkspaceRequest request, Long userId) {
@@ -114,17 +120,24 @@ public class WorkspaceService {
         workspaceRepository.delete(workspace);
     }
 
-    public void inviteMemberToWorkspace(InviteWorkspaceRequest request, Long userId, Long workspaceId) {
+    @Transactional
+    public void inviteMemberToWorkspace(InviteWorkspaceRequest request, Long userId, Long workspaceId) throws SlackApiException, IOException {
 
         User user = authService.findUser(userId);
 
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("해당 워크스페이스가 존재하지 않습니다."));
 
-        workspaceMemberRepository.save(new WorkspaceMember(
+        WorkspaceMember workspaceMember = new WorkspaceMember(
                 WorkspaceRole.MEMBER,
                 workspace,
-                user
-        ));
+                user);
+
+        workspaceMemberRepository.save(workspaceMember);
+
+        for (String email : request.getInviteUserEmailList()) {
+            alarmService.saveAlarm(AlarmType.MEMBER, workspaceMember.getId(), user, email);
+        }
+
     }
 
     public Workspace findWorkspace(Long workspaceId) {
