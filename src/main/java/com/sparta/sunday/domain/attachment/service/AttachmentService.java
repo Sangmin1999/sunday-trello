@@ -4,14 +4,14 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
 import com.sparta.sunday.domain.attachment.repository.AttachmentRepository;
+import com.sparta.sunday.domain.card.entity.Card;
+import com.sparta.sunday.domain.card.repository.CardRepository;
 import com.sparta.sunday.domain.common.dto.AuthUser;
-import com.sparta.sunday.domain.attachment.entity.Attachment;
 import com.sparta.sunday.domain.common.exception.InvalidRequestException;
 import com.sparta.sunday.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,7 @@ import java.util.UUID;
 public class AttachmentService {
 
     private final AttachmentRepository attachmentRepository;
-    //private final CardRepository cardRepository;
+    private final CardRepository cardRepository;
     private final AmazonS3Client amazonS3Client;
 
     @Value("${cloud.aws.s3.bucketName}")
@@ -40,9 +40,9 @@ public class AttachmentService {
     public ResponseEntity<UploadAttachmentResponse> uploadAttachment(MultipartFile file, Long cardId, AuthUser authUser) {
 
         User user = User.fromAuthUser(authUser);
-        if(!user.getUserRole().equals(""))
-        /*Card card = cardRepository.findById(cardId).orElseThrow(() ->
-                new InvalidRequestException("Card not found"));*/
+//        if(!user.getUserRole().equals(""))
+////        Card card = cardRepository.findById(cardId).orElseThrow(() ->
+////                new InvalidRequestException("Card not found"));
         uploadFile(file,bucketName);
         URL url = getUrl(bucketName, file.getOriginalFilename());
         UploadAttachmentResponse uploadAttachmentResponse = new UploadAttachmentResponse(

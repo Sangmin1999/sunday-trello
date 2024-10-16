@@ -1,6 +1,8 @@
 package com.sparta.sunday.domain.card.service;
 
+import com.sparta.sunday.domain.attachment.entity.Attachment;
 import com.sparta.sunday.domain.card.dto.request.CardRequest;
+import com.sparta.sunday.domain.card.dto.response.CardDetailResponse;
 import com.sparta.sunday.domain.card.dto.response.CardResponse;
 import com.sparta.sunday.domain.card.dto.response.CardUpdateResponse;
 import com.sparta.sunday.domain.card.entity.Card;
@@ -9,6 +11,7 @@ import com.sparta.sunday.domain.card.entity.CardManager;
 import com.sparta.sunday.domain.card.repository.CardActivityRepository;
 import com.sparta.sunday.domain.card.repository.CardManagerRepository;
 import com.sparta.sunday.domain.card.repository.CardRepository;
+import com.sparta.sunday.domain.comment.entity.Comment;
 import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.common.validator.AuthorizationValidator;
 import com.sparta.sunday.domain.list.entity.BoardList;
@@ -22,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,9 +80,36 @@ public class CardService {
         addManagerToCard(card, cardRequest.getManagerEmail());
         cardActivityService.logCardActivity(card, "카드 수정", authUser);
 
-        return new CardUpdateResponse(card,activities);
+        return new CardUpdateResponse(card, activities);
 
     }
+
+    public CardDetailResponse findCardWithDetails(Long cardId) {
+
+        Card card = cardRepository.findCardWithDetails(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 카드를 찾을 수 없습니다."));
+
+        List<String> comments = card.getComments().stream()
+                .map(Comment::getContent)
+                .collect(Collectors.toList());
+
+        List<String> attachments = card.getAttachments().stream()
+                .map(Attachment::getFileName)
+                .collect(Collectors.toList());
+
+        return new CardDetailResponse(
+                card.getId(),
+                card.getTitle(),
+                card.getDescription(),
+                card.getDueTo(),
+                card.getCardManagerList().get(0).getUser().getId(),  // 매니저 ID
+                card.getActivities().stream().map(CardActivity::getAction).collect(Collectors.toList()), // 활동 내역
+                card.getBoardList().getId(),  // 리스트 ID
+                comments,  // 댓글 목록
+                attachments  // 첨부파일 목록
+        );
+    }
+
 
     private void addManagerToCard(Card card, String managerEmail) {
         User user = userRepository.findByEmail(managerEmail)
@@ -88,4 +119,5 @@ public class CardService {
         cardManagerRepository.save(cardManager); // 매니저 저장
         card.addManager(cardManager); // Card 엔티티에 매니저 추가
     }
+
 }

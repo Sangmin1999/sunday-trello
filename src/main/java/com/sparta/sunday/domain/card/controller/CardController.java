@@ -1,6 +1,7 @@
 package com.sparta.sunday.domain.card.controller;
 
 import com.sparta.sunday.domain.card.dto.request.CardRequest;
+import com.sparta.sunday.domain.card.dto.response.CardDetailResponse;
 import com.sparta.sunday.domain.card.dto.response.CardResponse;
 import com.sparta.sunday.domain.card.dto.response.CardUpdateResponse;
 import com.sparta.sunday.domain.card.service.CardService;
@@ -33,7 +34,14 @@ public class CardController {
             @PathVariable Long cardId,
             @RequestBody CardRequest cardRequest,
             @AuthenticationPrincipal AuthUser authUser
-    ){
+    ) {
         return ResponseEntity.ok(cardService.upadteCard(workspaceId, cardId, cardRequest, authUser));
+    }
+
+    @GetMapping("{cardId}")
+    public ResponseEntity<CardDetailResponse> getCardDetails(
+            @PathVariable Long cardId) {
+        CardDetailResponse cardDetailResponse = cardService.findCardWithDetails(cardId);
+        return ResponseEntity.ok(cardDetailResponse);
     }
 }
