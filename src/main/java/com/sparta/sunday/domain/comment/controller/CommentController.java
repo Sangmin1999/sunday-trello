@@ -14,24 +14,24 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/boards")
+@RequestMapping("/cards")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping("/{boardId}/comments")
+    @PostMapping("/{cardsId}/comments")
     public ResponseEntity<CommentResponse> saveComment(
-            @PathVariable long boardId,
+            @PathVariable long cardsId,
             @RequestBody CommentRequest commentRequest,
             @AuthenticationPrincipal AuthUser authUser) throws SlackApiException, IOException {
-        return ResponseEntity.ok(commentService.saveComment(boardId, commentRequest, authUser));
+        return ResponseEntity.ok(commentService.saveComment(cardsId, commentRequest, authUser));
     }
 
-    @GetMapping("/{boardId}/comments")
+    @GetMapping("/{cardsId}/comments")
     public ResponseEntity<List<CommentResponse>> getComment(
-            @PathVariable long boardId) {
-        return ResponseEntity.ok(commentService.getComment(boardId));
+            @PathVariable long cardsId) {
+        return ResponseEntity.ok(commentService.getComment(cardsId));
     }
 
     @PatchMapping("/comments/{commentId}")

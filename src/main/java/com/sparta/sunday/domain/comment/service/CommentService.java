@@ -1,9 +1,12 @@
 package com.sparta.sunday.domain.comment.service;
 
 import com.slack.api.methods.SlackApiException;
+import com.sparta.sunday.domain.alarm.entity.AlarmType;
 import com.sparta.sunday.domain.alarm.service.AlarmService;
 import com.sparta.sunday.domain.board.entity.Board;
 import com.sparta.sunday.domain.board.repository.BoardRepository;
+import com.sparta.sunday.domain.card.entity.Card;
+import com.sparta.sunday.domain.card.repository.CardRepository;
 import com.sparta.sunday.domain.comment.dto.CommentRequest;
 import com.sparta.sunday.domain.comment.dto.CommentResponse;
 import com.sparta.sunday.domain.comment.entity.Comment;
@@ -25,7 +28,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
-    private final BoardRepository boardRepository;
+    private final CardRepository cardRepository;
     private final AlarmService alarmService;
 
     @Transactional
@@ -34,29 +37,29 @@ public class CommentService {
         User user = userRepository.findById(authUser.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("없는 유저"));
 
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("없는 보드"));
+        Card card = cardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 카드"));
 
-        Comment comment = Comment.of(commentRequest, board, user);
+        Comment comment = Comment.of(commentRequest, card, user);
 
         commentRepository.save(comment);
 
         alarmService.saveAlarm(
-                "COMMENT",
+                AlarmType.COMMENT,
                 comment.getId(),
-                comment.getUser().getId(),
-                board.getCreator().getEmail());
+                comment.getUser(),
+                card.getActivities().get(0).getUser().getEmail());
 
         return new CommentResponse(comment.getId(), comment.getContent());
 
     }
 
-    public List<CommentResponse> getComment(long boardId) {
+    public List<CommentResponse> getComment(long cardId) {
 
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new IllegalArgumentException("없는 보드"));
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 카드"));
 
-        return commentRepository.findAllByDeletedAtNullAndBoard(board).stream()
+        return commentRepository.findAllByDeletedAtNullAndCard(card).stream()
                 .map(comment -> new CommentResponse(comment.getId(), comment.getContent())).toList();
 
     }

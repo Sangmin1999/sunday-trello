@@ -23,7 +23,6 @@ public class WorkspaceController {
 
     @PostMapping
     public ResponseEntity<String> createWorkspace(@RequestBody WorkspaceRequest request, @AuthenticationPrincipal AuthUser authUser) {
-        System.out.println("??");
         workspaceService.createWorkspace(request, authUser.getUserId());
         return ResponseEntity.ok("워크스페이스가 성공적으로 생성되었습니다.");
     }
@@ -43,8 +42,6 @@ public class WorkspaceController {
 
     @GetMapping("/{workspaceId}")
     public ResponseEntity<WorkspaceResponse> getWorkspace(@PathVariable Long workspaceId, @AuthenticationPrincipal AuthUser authUser) {
-        System.out.println("??");
-
         return ResponseEntity.ok(workspaceService.getWorkspace(workspaceId, authUser.getUserId()));
     }
 

@@ -21,7 +21,7 @@ public class Alarm {
     private Long id;
 
     @Column(name = "type", nullable = false)
-    private Type type;
+    private AlarmType alarmType;
 
     @Column(name = "itemId", nullable = false)
     private Long itemId;
@@ -45,10 +45,10 @@ public class Alarm {
     @JoinColumn(name = "send_user_id")
     private User sendUser;
 
-    public static Alarm of(String type, Long itemId, User receiveUser, User sendUser, String message) {
+    public static Alarm of(AlarmType alarmType, Long itemId, User receiveUser, User sendUser, String message) {
 
         Alarm alarm = new Alarm();
-        alarm.type = Type.of(type);
+        alarm.alarmType = alarmType;
         alarm.itemId = itemId;
         alarm.message = message;
         alarm.read = false;
