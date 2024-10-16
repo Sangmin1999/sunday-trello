@@ -43,4 +43,10 @@ public class Card extends Timestamped {
     public void addManager(CardManager manager) {
         cardManagerList.add(manager);
     }
+
+    public void update(String title, String description, LocalDateTime dueTo) {
+        this.title = title;
+        this.description = description;
+        this.dueTo = dueTo;
+    }
 }
