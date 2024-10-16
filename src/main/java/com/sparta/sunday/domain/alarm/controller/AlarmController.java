@@ -24,7 +24,11 @@ public class AlarmController {
     public ResponseEntity<AlarmResponse> saveAlarm(
             @RequestBody AlarmRequest alarmRequest,
             @AuthenticationPrincipal AuthUser authuser) throws IOException, SlackApiException {
-        return ResponseEntity.ok(alarmService.saveAlarm(alarmRequest.getType(), alarmRequest.getItemId(), authuser));
+        return ResponseEntity.ok(alarmService.saveAlarm(
+                alarmRequest.getType(),
+                alarmRequest.getItemId(),
+                authuser.getUserId(),
+                alarmRequest.getEmail()));
     }
 
     @GetMapping

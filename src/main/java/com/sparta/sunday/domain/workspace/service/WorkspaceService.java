@@ -1,5 +1,9 @@
 package com.sparta.sunday.domain.workspace.service;
 
+import com.slack.api.methods.SlackApiException;
+import com.sparta.sunday.domain.alarm.service.AlarmService;
+import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
+import com.sparta.sunday.domain.common.exception.UnAuthorizedException;
 import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.user.enums.UserRole;
 import com.sparta.sunday.domain.user.repository.UserRepository;
@@ -11,8 +15,6 @@ import com.sparta.sunday.domain.workspace.entity.WorkspaceMember;
 import com.sparta.sunday.domain.workspace.enums.WorkspaceRole;
 import com.sparta.sunday.domain.workspace.repository.WorkspaceMemberRepository;
 import com.sparta.sunday.domain.workspace.repository.WorkspaceRepository;
-import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
-import com.sparta.sunday.domain.common.exception.UnAuthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,7 @@ public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final UserRepository userRepository;
+    private final AlarmService alarmService;
 
     @Transactional
     public void createWorkspace(WorkspaceRequest request, Long userId) {
@@ -110,7 +115,8 @@ public class WorkspaceService {
         workspaceRepository.delete(workspace);
     }
 
-    public void inviteMemberToWorkspace(InviteWorkspaceRequest request, Long userId, Long workspaceId) {
+    @Transactional
+    public void inviteMemberToWorkspace(InviteWorkspaceRequest request, Long userId, Long workspaceId) throws SlackApiException, IOException {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("해당 유저가 존재하지 않습니다."));
 
@@ -119,6 +125,10 @@ public class WorkspaceService {
         checkUserAuthorization(user);
 
         checkWorkspaceAuthorization(user, workspace);
+
+        for (String email : request.getInviteUserEmailList()) {
+            alarmService.saveAlarm("MEMBER", workspaceId, userId, email);
+        }
 
         workspaceMemberRepository.save(new WorkspaceMember(
                 WorkspaceRole.MEMBER,

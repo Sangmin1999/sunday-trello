@@ -1,5 +1,6 @@
 package com.sparta.sunday.domain.workspace.controller;
 
+import com.slack.api.methods.SlackApiException;
 import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.workspace.dto.request.InviteWorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.request.WorkspaceRequest;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,7 +68,7 @@ public class WorkspaceController {
             @RequestBody InviteWorkspaceRequest request,
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long workspaceId
-    ) {
+    ) throws SlackApiException, IOException {
         workspaceService.inviteMemberToWorkspace(request, authUser.getUserId(), workspaceId);
         return ResponseEntity.ok("성공적으로 초대 되었습니다.");
     }

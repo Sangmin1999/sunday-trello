@@ -7,5 +7,6 @@ public class AlarmRequest {
 
     private String type;
     private Long itemId;
+    private String email;
 
 }

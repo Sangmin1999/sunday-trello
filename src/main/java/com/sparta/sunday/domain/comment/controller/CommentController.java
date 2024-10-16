@@ -1,5 +1,6 @@
 package com.sparta.sunday.domain.comment.controller;
 
+import com.slack.api.methods.SlackApiException;
 import com.sparta.sunday.domain.comment.dto.CommentRequest;
 import com.sparta.sunday.domain.comment.dto.CommentResponse;
 import com.sparta.sunday.domain.comment.service.CommentService;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -22,7 +24,7 @@ public class CommentController {
     public ResponseEntity<CommentResponse> saveComment(
             @PathVariable long boardId,
             @RequestBody CommentRequest commentRequest,
-            @AuthenticationPrincipal AuthUser authUser) {
+            @AuthenticationPrincipal AuthUser authUser) throws SlackApiException, IOException {
         return ResponseEntity.ok(commentService.saveComment(boardId, commentRequest, authUser));
     }
 

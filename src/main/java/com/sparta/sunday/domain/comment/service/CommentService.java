@@ -1,5 +1,7 @@
 package com.sparta.sunday.domain.comment.service;
 
+import com.slack.api.methods.SlackApiException;
+import com.sparta.sunday.domain.alarm.service.AlarmService;
 import com.sparta.sunday.domain.board.entity.Board;
 import com.sparta.sunday.domain.board.repository.BoardRepository;
 import com.sparta.sunday.domain.comment.dto.CommentRequest;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,9 +26,10 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
+    private final AlarmService alarmService;
 
     @Transactional
-    public CommentResponse saveComment(long boardId, CommentRequest commentRequest, AuthUser authUser) {
+    public CommentResponse saveComment(long boardId, CommentRequest commentRequest, AuthUser authUser) throws SlackApiException, IOException {
 
         User user = userRepository.findById(authUser.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("없는 유저"));
@@ -36,6 +40,12 @@ public class CommentService {
         Comment comment = Comment.of(commentRequest, board, user);
 
         commentRepository.save(comment);
+
+        alarmService.saveAlarm(
+                "COMMENT",
+                comment.getId(),
+                comment.getUser().getId(),
+                board.getCreator().getEmail());
 
         return new CommentResponse(comment.getId(), comment.getContent());
 

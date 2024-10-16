@@ -4,10 +4,11 @@ import com.slack.api.Slack;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
+import com.slack.api.methods.request.users.UsersLookupByEmailRequest;
+import com.slack.api.methods.response.users.UsersLookupByEmailResponse;
 import com.sparta.sunday.domain.alarm.dto.AlarmResponse;
 import com.sparta.sunday.domain.alarm.entity.Alarm;
 import com.sparta.sunday.domain.alarm.repository.AlarmRepository;
-import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,30 +26,36 @@ public class AlarmService {
     @Value(value = "${slack.bot-token}")
     private String slackToken;
 
-    @Value(value = "${slack.channel.monitor}")
-    private String channel;
-
     private final AlarmRepository alarmRepository;
     private final UserRepository userRepository;
 
 
     @Transactional
-    public AlarmResponse saveAlarm(String type, Long itemId, AuthUser authUser) throws IOException, SlackApiException {
+    public AlarmResponse saveAlarm(String type, Long itemId, long sendUserId, String receiveUserEmail) throws IOException, SlackApiException {
 
-        User sendUser = userRepository.findById(authUser.getUserId())
+        User sendUser = userRepository.findById(sendUserId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 유저"));
+
+        User receiveUser = userRepository.findByEmail(receiveUserEmail)
                 .orElseThrow(() -> new IllegalArgumentException("없는 유저"));
 
         String sb = sendUser.getUsername() + "님께서 " + typeMessage(type);
 
-        Alarm alarm = Alarm.of(type, itemId, /*receiveUser 로 변경 필요*/ sendUser, sendUser, sb);
+        MethodsClient client = Slack.getInstance().methods();
+
+        UsersLookupByEmailResponse response1 = client.usersLookupByEmail(UsersLookupByEmailRequest.builder()
+                .token(slackToken)
+                .email(receiveUserEmail)
+                .build());
+
+        Alarm alarm = Alarm.of(type, itemId, receiveUser, sendUser, sb);
+
 
         alarmRepository.save(alarm);
 
-        MethodsClient client = Slack.getInstance().methods();
-
         ChatPostMessageRequest request = ChatPostMessageRequest.builder()
                 .token(slackToken)
-                .channel(channel)
+                .channel(response1.getUser().getId())
                 .text(sb)
                 .build();
 
