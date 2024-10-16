@@ -14,11 +14,6 @@ public interface CardRepository extends JpaRepository<Card, Long> {
             "WHERE c.id = :cardId")
     Optional<Card> findCardWithManagers(@Param("cardId") Long cardId);
 
-    @Query("SELECT c FROM Card c " +
-            "LEFT JOIN FETCH c.cardManagerList m " +
-            "LEFT JOIN FETCH c.activities a " +
-            "LEFT JOIN FETCH c.comments cm " +  // 댓글 추가
-            "LEFT JOIN FETCH c.attachments at " + // 첨부파일 추가
-            "WHERE c.id = :cardId")
+    @Query("SELECT c FROM Card c WHERE c.id = :cardId")
     Optional<Card> findCardWithDetails(@Param("cardId") Long cardId);
 }

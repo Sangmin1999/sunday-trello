@@ -12,4 +12,7 @@ public interface CardActivityRepository extends JpaRepository<CardActivity, Long
     @Query("SELECT a FROM CardActivity a " +
             "WHERE a.card.id = :cardId")
     List<CardActivity> findCardActivitiesByCardId(@Param("cardId") Long cardId);
+
+    @Query("SELECT a.action from CardActivity a where a.card.id = :cardId")
+    List<String> findGetActivitiesByCardId(@Param("cardId") Long cardId);
 }

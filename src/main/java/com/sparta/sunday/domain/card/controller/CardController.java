@@ -31,13 +31,14 @@ public class CardController {
         return ResponseEntity.ok(cardService.createCard(workspaceId, listId, cardRequest, authUser));
     }
 
+
     @PutMapping("/{cardId}")
     public ResponseEntity<CardUpdateResponse> updateCard(
             @PathVariable Long workspaceId,
             @PathVariable Long cardId,
             @RequestBody CardRequest cardRequest,
             @AuthenticationPrincipal AuthUser authUser
-    ) {
+    ) { //throws SlackApiException, IOException {
         return ResponseEntity.ok(cardService.upadteCard(workspaceId, cardId, cardRequest, authUser));
     }
 
