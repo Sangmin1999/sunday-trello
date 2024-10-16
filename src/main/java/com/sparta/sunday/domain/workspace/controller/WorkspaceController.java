@@ -2,6 +2,7 @@ package com.sparta.sunday.domain.workspace.controller;
 
 import com.slack.api.methods.SlackApiException;
 import com.sparta.sunday.domain.common.dto.AuthUser;
+import com.sparta.sunday.domain.workspace.dto.request.ChangeWorkspaceMemeberRoleRequest;
 import com.sparta.sunday.domain.workspace.dto.request.InviteWorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.request.WorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.response.WorkspaceResponse;
