@@ -131,13 +131,4 @@ public class WorkspaceService {
         return workspaceRepository.findById(workspaceId).orElseThrow(
                 () -> new EntityNotFoundException("해당 워크스페이스가 존재하지 않습니다."));
     }
-
-    public ChangeWorkspaceMemeberRoleRequest changeWorkspaceMemberRole(
-            Long workspaceId,
-            ChangeWorkspaceMemeberRoleRequest changeWorkspaceMemeberRoleRequest,
-            Long userId
-    ) {
-        return null;
-    }
-
 }
