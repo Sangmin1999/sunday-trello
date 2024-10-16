@@ -1,6 +1,6 @@
 package com.sparta.sunday.domain.user.entity;
 
-import com.sparta.sunday.config.AuthUser;
+import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.common.entity.Timestamped;
 import com.sparta.sunday.domain.user.enums.UserRole;
 import jakarta.persistence.*;
