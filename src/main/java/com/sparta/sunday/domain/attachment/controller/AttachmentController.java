@@ -14,12 +14,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class AttachmentController {
     private final AttachmentService attachmentService;
 
-    /*@PostMapping("/card/{cardId}/attachments")
+    @PostMapping("/card/{cardId}/attachments")
     public ResponseEntity<UploadAttachmentResponse> uploadAttachment(@RequestParam("file") MultipartFile file,
                                                                      @PathVariable long cardId,
                                                                      @AuthenticationPrincipal AuthUser authUser) {
         return attachmentService.uploadAttachment(file,cardId,authUser);
-    }*/
+    }
 
     /*@GetMapping("/card/{cardId}/attachments/{attachmentsId}")
     public ResponseEntity<GetAttachmentPesponse> getAttachment(@PathVariable long cardId,

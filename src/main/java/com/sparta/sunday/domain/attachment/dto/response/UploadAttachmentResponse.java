@@ -7,13 +7,13 @@ public class UploadAttachmentResponse {
     private final Long id;
     private final Long cardId;
     private final String fileName;
-    private final String uploader;
+    private final Long uploaderId;
     private final String url;
-    public UploadAttachmentResponse( Long id,  Long cardId,String fileName , String uploader,  String url) {
+    public UploadAttachmentResponse( Long id,  Long cardId,String fileName , Long uploaderId,  String url) {
         this.id = id;
         this.cardId = cardId;
         this.fileName = fileName;
-        this.uploader = uploader;
+        this.uploaderId = uploaderId;
         this.url = url;
     }
 }

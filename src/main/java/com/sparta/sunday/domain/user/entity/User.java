@@ -7,8 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-
-import java.rmi.ServerException;
+import com.sparta.sunday.domain.common.exception.ServerException;
 
 @Entity
 @Getter
@@ -42,13 +41,19 @@ public class User extends Timestamped {
         this.userRole = userRole;
     }
 
-    /*public static User fromAuthUser(AuthUser authUser) {
+    public User(Long userId,  String email, UserRole role) {
+        this.id = userId;
+        this.email = email;
+        this.userRole = role;
+    }
+
+    public static User fromAuthUser(AuthUser authUser) {
         UserRole role = UserRole.of(
                 authUser.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .findFirst()
                         .orElseThrow(() -> new ServerException("권한이 없습니다."))
         );
-        return new User(authUser.getId(), authUser.getEmail(), role);
-    }*/
+        return new User(authUser.getUserId(), authUser.getEmail(), role);
+    }
 }

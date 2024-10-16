@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.smartcardio.Card;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -35,12 +36,13 @@ public class AttachmentService {
     private String bucketName;
 
 
-    /*@Transactional
+    @Transactional
     public ResponseEntity<UploadAttachmentResponse> uploadAttachment(MultipartFile file, Long cardId, AuthUser authUser) {
         try {
+
             User user = User.fromAuthUser(authUser);
-            Card card = cardRepository.findById(cardId).orElseThrow(() ->
-                    new InvalidRequestException("Card not found"));
+            /*Card card = cardRepository.findById(cardId).orElseThrow(() ->
+                    new InvalidRequestException("Card not found"));*/
 
             String fileName = UUID.randomUUID() + file.getOriginalFilename();
             String fileUrl = "https://" + bucketName + ".s3." + "ap-northeast-2" + ".amazonaws.com/" + fileName;
@@ -56,8 +58,8 @@ public class AttachmentService {
                     file.getSize(),
                     fileUrl,
                     file.getName(),
-                    user.getUsername()*//*,
-                    card*//*
+                    user.getId()/*,
+                    card*/
             );
 
             attachmentRepository.save(attachment);
@@ -65,7 +67,7 @@ public class AttachmentService {
                     attachment.getId(),
                     1L,
                     attachment.getFileName(),
-                    attachment.getUploader(),
+                    attachment.getUploaderId(),
                     attachment.getPath()
             );
 
@@ -75,7 +77,10 @@ public class AttachmentService {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }*/
+    }
+
+
+
 
     @Transactional
     public void uploadAttachmentTest(MultipartFile file) {
@@ -97,7 +102,7 @@ public class AttachmentService {
                 file.getSize(),
                 fileUrl,
                 file.getName(),
-                "남진현"
+                1L
         );
 
         attachmentRepository.save(attachment);
@@ -105,7 +110,7 @@ public class AttachmentService {
                 attachment.getId(),
                 1L,
                 attachment.getFileName(),
-                attachment.getUploader(),
+                attachment.getUploaderId(),
                 attachment.getPath()
         );
         } catch (IOException e) {
@@ -119,9 +124,12 @@ public class AttachmentService {
                 new InvalidRequestException("Card not found"));
         String fileName = attachment.getFileName();
         System.out.println(fileName);
-        System.out.println(attachment.getUploader());
+        System.out.println(attachment.getUploaderId());
         System.out.println(attachment.getPath());
         System.out.println(attachment.getFormat());
         System.out.println(attachment.getSize());
     }
+
+
+
 }
