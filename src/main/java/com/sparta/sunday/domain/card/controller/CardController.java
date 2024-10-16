@@ -48,4 +48,15 @@ public class CardController {
         CardDetailResponse cardDetailResponse = cardService.findCardWithDetails(cardId);
         return ResponseEntity.ok(cardDetailResponse);
     }
+
+    @DeleteMapping("/{cardId}")
+    public ResponseEntity<String> deleteCard(
+            @PathVariable Long workspaceId,
+            @PathVariable Long listId,
+            @PathVariable Long cardId,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        cardService.deleteCard(workspaceId, cardId, authUser);
+        return ResponseEntity.ok("카드가 성공적으로 삭제되었습니다.");
+    }
 }

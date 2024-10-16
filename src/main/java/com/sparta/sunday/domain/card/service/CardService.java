@@ -121,6 +121,17 @@ public class CardService {
         );
     }
 
+    @Transactional
+    public void deleteCard(Long workspaceId, Long cardId, AuthUser authUser) {
+
+        authorizationValidator.checkWorkspaceAuthorization(authUser.getUserId(), workspaceId, WorkspaceRole.MEMBER);
+
+        Card card = cardRepository.findCardWithDetails(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 카드를 찾을 수 없습니다."));
+
+        cardRepository.delete(card);
+    }
+
     private void addManagerToCard(Card card, String managerEmail) {
         User user = userRepository.findByEmail(managerEmail)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
