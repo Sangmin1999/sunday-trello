@@ -5,12 +5,13 @@ import lombok.Getter;
 @Getter
 public class UploadAttachmentResponse {
     private final Long id;
+    private final Long cardId;
     private final String fileName;
     private final String uploader;
     private final String url;
-
-    public UploadAttachmentResponse(Long id, String fileName, String uploader, String url) {
+    public UploadAttachmentResponse( Long id,  Long cardId,String fileName , String uploader,  String url) {
         this.id = id;
+        this.cardId = cardId;
         this.fileName = fileName;
         this.uploader = uploader;
         this.url = url;

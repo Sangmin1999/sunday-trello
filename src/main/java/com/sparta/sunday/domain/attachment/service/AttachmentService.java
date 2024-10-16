@@ -2,6 +2,8 @@ package com.sparta.sunday.domain.attachment.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
+import com.sparta.sunday.domain.attachment.repository.AttachmentRepository;
 import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.attachment.entity.Attachment;
 import com.sparta.sunday.domain.common.exception.InvalidRequestException;
@@ -25,7 +27,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class AttachmentService {
 
-    //private final AttachmentRepository attachmentRepository;
+    private final AttachmentRepository attachmentRepository;
     //private final CardRepository cardRepository;
     private final AmazonS3Client amazonS3Client;
 
@@ -74,7 +76,7 @@ public class AttachmentService {
         }
     }*/
 
-
+    @Transactional
     public void uploadAttachmentTest(MultipartFile file) {
         try
         {
@@ -85,13 +87,40 @@ public class AttachmentService {
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
 
+
         System.out.println("들어가기 전");
         amazonS3Client.putObject(bucketName, fileUrl, file.getInputStream(), metadata);
         System.out.println("나왔다");
+        Attachment attachment = new Attachment(
+                file.getContentType(),
+                file.getSize(),
+                fileUrl,
+                file.getName(),
+                "남진현"
+        );
+
+        attachmentRepository.save(attachment);
+        UploadAttachmentResponse uploadAttachmentResponse = new UploadAttachmentResponse(
+                attachment.getId(),
+                1L,
+                attachment.getFileName(),
+                attachment.getUploader(),
+                attachment.getPath()
+        );
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public void getAttachmentTest(Long attachmentsId) {
 
+        Attachment attachment = attachmentRepository.findById(attachmentsId).orElseThrow(()->
+                new InvalidRequestException("Card not found"));
+        String fileName = attachment.getFileName();
+        System.out.println(fileName);
+        System.out.println(attachment.getUploader());
+        System.out.println(attachment.getPath());
+        System.out.println(attachment.getFormat());
+        System.out.println(attachment.getSize());
+    }
 }

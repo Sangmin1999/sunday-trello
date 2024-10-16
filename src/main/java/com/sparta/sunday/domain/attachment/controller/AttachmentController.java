@@ -1,5 +1,6 @@
 package com.sparta.sunday.domain.attachment.controller;
 
+import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
 import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.attachment.service.AttachmentService;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,21 @@ public class AttachmentController {
         return attachmentService.uploadAttachment(file,cardId,authUser);
     }*/
 
+    /*@GetMapping("/card/{cardId}/attachments/{attachmentsId}")
+    public ResponseEntity<GetAttachmentPesponse> getAttachment(@PathVariable long cardId,
+                                                               @PathVariable long attachmentsId,
+                                                               @AuthenticationPrincipal AuthUser authUser){
+        return attachmentService.getAttachment(cardId,attachmentsId,authUser);
+    }*/
+
     @PostMapping("/uploadTest")
     public void uploadAttachmentTest(@RequestParam("file") MultipartFile file) {
         attachmentService.uploadAttachmentTest(file);
     }
+
+    @GetMapping("/attachments/{attachmentsId}")
+    public void getAttachmentTest(@PathVariable Long attachmentsId) {
+        attachmentService.getAttachmentTest(attachmentsId);
+    }
+
 }
