@@ -11,8 +11,8 @@ import com.sparta.sunday.domain.workspace.entity.WorkspaceMember;
 import com.sparta.sunday.domain.workspace.enums.WorkspaceRole;
 import com.sparta.sunday.domain.workspace.repository.WorkspaceMemberRepository;
 import com.sparta.sunday.domain.workspace.repository.WorkspaceRepository;
-import com.sparta.sunday.exception.EntityNotFoundException;
-import com.sparta.sunday.exception.UnAuthorizedException;
+import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
+import com.sparta.sunday.domain.common.exception.UnAuthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,8 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +59,7 @@ public class WorkspaceService {
 
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("해당 워크스페이스가 존재하지 않습니다."));
 
-        checkWorkspaceAuthorization(user, workspace);
+        checkWorkspaceAuthorization(user, workspace, "ADMIN");
 
         workspace.update(request.getName(), request.getDescription());
 
@@ -78,7 +76,7 @@ public class WorkspaceService {
 
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("해당 워크스페이스가 존재하지 않습니다."));
 
-        checkWorkspaceAuthorization(user, workspace);
+        checkWorkspaceAuthorization(user, workspace, "MEMBER");
 
         return new WorkspaceResponse(
                 workspace.getId(),
@@ -107,7 +105,7 @@ public class WorkspaceService {
 
         checkUserAuthorization(user);
 
-        checkWorkspaceAuthorization(user, workspace);
+        checkWorkspaceAuthorization(user, workspace, "ADMIN");
 
         workspaceRepository.delete(workspace);
     }
@@ -120,7 +118,7 @@ public class WorkspaceService {
 
         checkUserAuthorization(user);
 
-        checkWorkspaceAuthorization(user, workspace);
+//        checkWorkspaceAuthorization(user, workspace);
 
         workspaceMemberRepository.save(new WorkspaceMember(
                 WorkspaceRole.MEMBER,
@@ -136,11 +134,17 @@ public class WorkspaceService {
         }
     }
 
-    private void checkWorkspaceAuthorization(User user, Workspace workspace) {
+    public void checkWorkspaceAuthorization(User user, Workspace workspace, String role) {
+        int roleValue = switch (role) {
+            case "ADMIN" -> 3;
+            case "MANAGER" -> 2;
+            case "MEMBER" -> 1;
+            default -> 0;
+        };
 
         WorkspaceMember workspaceMember = workspaceMemberRepository.findByMemberIdAndWorkspaceId(user.getId(), workspace.getId());
 
-        if(!workspaceMember.getRole().equals(WorkspaceRole.MANAGER)) {
+        if(!(workspaceMember.getRole().getValue() >= roleValue)) {
             throw new UnAuthorizedException("해당 기능에 대한 권한이 없습니다.");
         }
     }

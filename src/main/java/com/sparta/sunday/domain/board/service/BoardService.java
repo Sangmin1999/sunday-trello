@@ -6,14 +6,13 @@ import com.sparta.sunday.domain.board.entity.Board;
 import com.sparta.sunday.domain.board.repository.BoardRepository;
 import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.user.repository.UserRepository;
-import com.sparta.sunday.domain.workspace.dto.response.WorkspaceResponse;
 import com.sparta.sunday.domain.workspace.entity.Workspace;
 import com.sparta.sunday.domain.workspace.entity.WorkspaceMember;
 import com.sparta.sunday.domain.workspace.enums.WorkspaceRole;
 import com.sparta.sunday.domain.workspace.repository.WorkspaceMemberRepository;
 import com.sparta.sunday.domain.workspace.repository.WorkspaceRepository;
-import com.sparta.sunday.exception.EntityNotFoundException;
-import com.sparta.sunday.exception.UnAuthorizedException;
+import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
+import com.sparta.sunday.domain.common.exception.UnAuthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +31,7 @@ public class BoardService {
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
 
+    @Transactional
     public void createBoard(Long workspaceId, BoardRequest request, Long userId) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 유저입니다."));
