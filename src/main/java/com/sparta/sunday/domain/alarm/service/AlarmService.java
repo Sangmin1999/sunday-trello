@@ -32,29 +32,34 @@ public class AlarmService {
     @Transactional
     public void saveAlarm(AlarmType alarmType, Long itemId, User sendUser, String receiveUserEmail) throws IOException, SlackApiException {
 
-        User receiveUser = userRepository.findByEmail(receiveUserEmail)
-                .orElseThrow(() -> new IllegalArgumentException("없는 유저"));
+        if (sendUser.getEmail() != receiveUserEmail) {
 
-        String sb = sendUser.getUsername() + "님께서 " + alarmType.getMessage();
+            User receiveUser = userRepository.findByEmail(receiveUserEmail)
+                    .orElseThrow(() -> new IllegalArgumentException("없는 유저"));
 
-        MethodsClient client = Slack.getInstance().methods();
+            String message = sendUser.getUsername() + "님께서 " + alarmType.getMessage();
 
-        UsersLookupByEmailResponse response1 = client.usersLookupByEmail(UsersLookupByEmailRequest.builder()
-                .token(slackToken)
-                .email(receiveUserEmail)
-                .build());
+            MethodsClient client = Slack.getInstance().methods();
 
-        Alarm alarm = Alarm.of(alarmType, itemId, receiveUser, sendUser, sb);
+            UsersLookupByEmailResponse response = client.usersLookupByEmail(UsersLookupByEmailRequest.builder()
+                    .token(slackToken)
+                    .email(receiveUserEmail)
+                    .build());
 
-        alarmRepository.save(alarm);
+            Alarm alarm = Alarm.of(alarmType, itemId, receiveUser, sendUser, message);
 
-        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                .token(slackToken)
-                .channel(response1.getUser().getId())
-                .text(sb)
-                .build();
+            alarmRepository.save(alarm);
 
-        client.chatPostMessage(request);
+            ChatPostMessageRequest request = ChatPostMessageRequest.builder()
+                    .token(slackToken)
+                    .channel(response.getUser().getId())
+                    .text(message)
+                    .build();
+
+            client.chatPostMessage(request);
+
+        }
+
     }
 
 }
