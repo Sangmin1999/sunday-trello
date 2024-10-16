@@ -9,6 +9,7 @@ import com.sparta.sunday.domain.attachment.repository.AttachmentRepository;
 import com.sparta.sunday.domain.common.exception.InvalidRequestException;
 import com.sparta.sunday.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,19 +21,21 @@ import javax.smartcardio.Card;
 import java.io.IOException;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AttachmentService {
 
     private final AttachmentRepository attachmentRepository;
-    private final CardRepository cardRepository;
+    //private final CardRepository cardRepository;
     private final AmazonS3Client amazonS3Client;
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+    @Value("${cloud.aws.s3.bucketName}")
+    private String bucketName;
 
-    @Transactional
+
+    /*@Transactional
     public ResponseEntity<UploadAttachmentResponse> uploadAttachment(MultipartFile file, Long cardId, AuthUser authUser) {
         try {
             User user = User.fromAuthUser(authUser);
@@ -40,13 +43,13 @@ public class AttachmentService {
                     new InvalidRequestException("Card not found"));
 
             String fileName = UUID.randomUUID() + file.getOriginalFilename();
-            String fileUrl = "https://" + bucket + ".s3." + "ap-northeast-2" + ".amazonaws.com/" + fileName;
+            String fileUrl = "https://" + bucketName + ".s3." + "ap-northeast-2" + ".amazonaws.com/" + fileName;
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
 
-            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+            amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
 
             Attachment attachment = new Attachment(
                     file.getContentType(),
@@ -71,5 +74,26 @@ public class AttachmentService {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }*/
+
+
+    public void uploadAttachmentTest(MultipartFile file) {
+        try
+        {
+        String fileName = UUID.randomUUID() + file.getOriginalFilename();
+        String fileUrl = "https://" + bucketName + ".s3." + "ap-northeast-2" + ".amazonaws.com/" + fileName;
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(file.getContentType());
+        metadata.setContentLength(file.getSize());
+
+        System.out.println("들어가기 전");
+        amazonS3Client.putObject(bucketName, fileUrl, file.getInputStream(), metadata);
+        System.out.println("나왔다");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
+
 }
