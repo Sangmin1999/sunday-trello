@@ -23,18 +23,18 @@ public class AuthorizationValidator {
         }
     }
 
-    public void checkWorkspaceAuthorization(User user, Workspace workspace, WorkspaceRole role) {
+    public void checkWorkspaceAuthorization(Long userId, Long workspaceId, WorkspaceRole role) {
 
-        WorkspaceMember workspaceMember = workspaceMemberRepository.findByMemberIdAndWorkspaceId(user.getId(), workspace.getId());
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByMemberIdAndWorkspaceId(userId, workspaceId);
 
         if (!(workspaceMember.getRole().getValue() >= role.getValue())) {
             throw new UnAuthorizedException("해당 기능에 대한 권한이 없습니다.");
         }
     }
 
-    public void checkWorkspaceMember(User user, Workspace workspace) {
+    public void checkWorkspaceMember(Long userId, Long workspaceId) {
 
-        WorkspaceMember workspaceMember = workspaceMemberRepository.findByMemberIdAndWorkspaceId(user.getId(), workspace.getId());
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByMemberIdAndWorkspaceId(userId, workspaceId);
 
         if(workspaceMember == null) {
             throw new UnAuthorizedException("해당 워크스페이스에 속한 멤버가 아닙니다.");

@@ -2,9 +2,11 @@ package com.sparta.sunday.domain.workspace.service;
 
 import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
 import com.sparta.sunday.domain.common.exception.UnAuthorizedException;
+import com.sparta.sunday.domain.common.validator.AuthorizationValidator;
 import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.user.enums.UserRole;
 import com.sparta.sunday.domain.user.repository.UserRepository;
+import com.sparta.sunday.domain.user.service.AuthService;
 import com.sparta.sunday.domain.workspace.dto.request.WorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.response.WorkspaceResponse;
 import com.sparta.sunday.domain.workspace.entity.Workspace;
@@ -45,6 +47,12 @@ public class WorkspaceServiceTest {
     @Mock
     private WorkspaceMemberRepository workspaceMemberRepository;
 
+    @Mock
+    private AuthorizationValidator authorizationValidator;
+
+    @Mock
+    private AuthService authService;
+
     @InjectMocks
     private WorkspaceService workspaceService;
 
@@ -70,14 +78,14 @@ public class WorkspaceServiceTest {
     @Test
     public void 워크스페이스_생성_성공() {
         // Given
-        given(userRepository.findById(any(Long.class))).willReturn(Optional.of(mockUser));
+        given(authService.findUser(any(Long.class))).willReturn(mockUser);
         given(workspaceRepository.save(any(Workspace.class))).willAnswer(invocation -> invocation.getArgument(0));
 
         // When
         workspaceService.createWorkspace(mockRequest, 1L);
 
         // Then
-        verify(userRepository).findById(1L);
+        verify(authService).findUser(1L);
         verify(workspaceRepository).save(any(Workspace.class));
         verify(workspaceMemberRepository).save(any(WorkspaceMember.class));
     }
@@ -85,14 +93,14 @@ public class WorkspaceServiceTest {
     @Test
     public void 워크스페이스_생성_존재하지않는유저() {
         // Given
-        given(userRepository.findById(any(Long.class))).willReturn(Optional.empty());
+        given(authService.findUser(any(Long.class))).willThrow(new EntityNotFoundException("해당 유저가 존재하지 않습니다."));
 
         // When/Then
         assertThatThrownBy(() -> workspaceService.createWorkspace(mockRequest, 1L))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("해당 유저가 존재하지 않습니다.");
 
-        then(userRepository).should().findById(1L);
+        then(authService).should().findUser(1L);
         then(workspaceRepository).shouldHaveNoInteractions();
     }
 
@@ -151,7 +159,7 @@ public class WorkspaceServiceTest {
     @Test
     public void 워크스페이스_삭제_성공() {
         // Given
-        given(userRepository.findById(any(Long.class))).willReturn(Optional.of(mockUser));
+        given(authService.findUser(any(Long.class))).willReturn(any(User.class));
         given(workspaceRepository.findById(any(Long.class))).willReturn(Optional.of(mockWorkspace));
         given(workspaceMemberRepository.findByMemberIdAndWorkspaceId(any(Long.class), any(Long.class)))
                 .willReturn(new WorkspaceMember(WorkspaceRole.MANAGER, mockWorkspace, mockUser));
@@ -160,7 +168,7 @@ public class WorkspaceServiceTest {
         workspaceService.deleteWorkspace(1L, 1L);
 
         // Then
-        then(userRepository).should().findById(1L);
+        then(authService).should().findUser(1L);
         then(workspaceRepository).should().findById(1L);
         then(workspaceRepository).should().delete(mockWorkspace);
     }
@@ -171,7 +179,7 @@ public class WorkspaceServiceTest {
         User unauthorizedUser = new User(1L, "unauthorized@example.com", UserRole.ROLE_USER);
 
         // When/Then
-        assertThatThrownBy(() -> workspaceService.checkUserAuthorization(unauthorizedUser))
+        assertThatThrownBy(() -> authorizationValidator.checkUserAuthorization(unauthorizedUser))
                 .isInstanceOf(UnAuthorizedException.class)
                 .hasMessageContaining("해당 기능에 대한 권한이 없습니다.");
     }
@@ -183,7 +191,7 @@ public class WorkspaceServiceTest {
                 .willReturn(new WorkspaceMember(WorkspaceRole.MEMBER, mockWorkspace, mockUser));
 
         // When/Then
-        assertThatThrownBy(() -> workspaceService.checkWorkspaceAuthorization(mockUser, mockWorkspace, "ADMIN"))
+        assertThatThrownBy(() -> authorizationValidator.checkWorkspaceAuthorization(any(Long.class), any(Long.class), WorkspaceRole.MANAGER))
                 .isInstanceOf(UnAuthorizedException.class)
                 .hasMessageContaining("해당 기능에 대한 권한이 없습니다.");
     }

@@ -8,11 +8,10 @@ import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
 import com.sparta.sunday.domain.common.validator.AuthorizationValidator;
 import com.sparta.sunday.domain.common.validator.ImgUrlValidator;
 import com.sparta.sunday.domain.user.entity.User;
-import com.sparta.sunday.domain.user.repository.UserRepository;
 import com.sparta.sunday.domain.user.service.AuthService;
 import com.sparta.sunday.domain.workspace.entity.Workspace;
 import com.sparta.sunday.domain.workspace.enums.WorkspaceRole;
-import com.sparta.sunday.domain.workspace.repository.WorkspaceRepository;
+import com.sparta.sunday.domain.workspace.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,20 +26,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class BoardService {
 
     private final BoardRepository boardRepository;
-    private final UserRepository userRepository;
-    private final WorkspaceRepository workspaceRepository;
     private final AuthorizationValidator authorizationValidator;
     private final ImgUrlValidator imgUrlValidator;
     private final AuthService authService;
+    private final WorkspaceService workspaceService;
 
     @Transactional
     public void createBoard(Long workspaceId, BoardRequest request, Long userId) {
 
         User user = authService.findUser(userId);
 
-        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스입니다."));
+        Workspace workspace = workspaceService.findWorkspace(workspaceId);
 
-        authorizationValidator.checkWorkspaceAuthorization(user, workspace, WorkspaceRole.MEMBER);
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MEMBER);
 
         String background = request.getImgUrl() == null
                 ? request.getBackgroundColor() : imgUrlValidator.isValidImageUrl(request.getImgUrl())
@@ -61,11 +59,7 @@ public class BoardService {
 
     public BoardResponse getBoard(Long workspaceId, Long boardId, Long userId) {
 
-        User user = authService.findUser(userId);
-
-        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스입니다."));
-
-        authorizationValidator.checkWorkspaceMember(user, workspace);
+        authorizationValidator.checkWorkspaceMember(userId, workspaceId);
 
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 보드입니다."));
 
@@ -80,11 +74,7 @@ public class BoardService {
 
     public Page<BoardResponse> getBoardList(int page, int size, Long workspaceId, Long userId) {
 
-        User user = authService.findUser(userId);
-
-        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스입니다."));
-
-        authorizationValidator.checkWorkspaceMember(user, workspace);
+        authorizationValidator.checkWorkspaceMember(userId, workspaceId);
 
         Pageable pageable = PageRequest.of(page,size, Sort.by("updatedAt").descending());
         Page<Board> boards = boardRepository.findByWorkspaceId(workspaceId, pageable);
@@ -106,11 +96,7 @@ public class BoardService {
             BoardRequest request
     ) {
 
-        User user = authService.findUser(userId);
-
-        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스입니다."));
-
-        authorizationValidator.checkWorkspaceAuthorization(user, workspace, WorkspaceRole.MEMBER);
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MEMBER);
 
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 보드입니다."));
 
@@ -139,11 +125,7 @@ public class BoardService {
     @Transactional
     public void deleteBoard(Long boardId, Long workspaceId, Long userId) {
 
-        User user = authService.findUser(userId);
-
-        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스입니다."));
-
-        authorizationValidator.checkWorkspaceAuthorization(user, workspace, WorkspaceRole.MEMBER);
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MEMBER);
 
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 보드입니다."));
 

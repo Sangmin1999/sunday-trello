@@ -3,7 +3,6 @@ package com.sparta.sunday.domain.workspace.service;
 import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
 import com.sparta.sunday.domain.common.validator.AuthorizationValidator;
 import com.sparta.sunday.domain.user.entity.User;
-import com.sparta.sunday.domain.user.repository.UserRepository;
 import com.sparta.sunday.domain.user.service.AuthService;
 import com.sparta.sunday.domain.workspace.dto.request.InviteWorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.request.WorkspaceRequest;
@@ -28,7 +27,6 @@ public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
-    private final UserRepository userRepository;
     private final AuthorizationValidator authorizationValidator;
     private final AuthService authService;
 
@@ -58,11 +56,9 @@ public class WorkspaceService {
             Long userId
     ) {
 
-        User user = authService.findUser(userId);
-
         Workspace workspace = findWorkspace(workspaceId);
 
-        authorizationValidator.checkWorkspaceAuthorization(user, workspace, WorkspaceRole.MANAGER);
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MANAGER);
 
         workspace.update(request.getName(), request.getDescription());
 
@@ -75,11 +71,9 @@ public class WorkspaceService {
 
     public WorkspaceResponse getWorkspace(Long workspaceId, Long userId) {
 
-        User user = authService.findUser(userId);
-
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("해당 워크스페이스가 존재하지 않습니다."));
 
-        authorizationValidator.checkWorkspaceAuthorization(user, workspace, WorkspaceRole.READ_ONLY);
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.READ_ONLY);
 
         return new WorkspaceResponse(
                 workspace.getId(),
@@ -108,7 +102,7 @@ public class WorkspaceService {
 
         authorizationValidator.checkUserAuthorization(user);
 
-        authorizationValidator.checkWorkspaceAuthorization(user, workspace, WorkspaceRole.MANAGER);
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MANAGER);
 
         workspaceRepository.delete(workspace);
     }
