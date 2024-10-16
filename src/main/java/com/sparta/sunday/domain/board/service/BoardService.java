@@ -40,7 +40,7 @@ public class BoardService {
 
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스입니다."));
 
-        authorizationValidator.checkWorkspaceAuthorization(user, workspace, WorkspaceRole.MEMBER);
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MEMBER);
 
         String background = request.getImgUrl() == null
                 ? request.getBackgroundColor() : imgUrlValidator.isValidImageUrl(request.getImgUrl())
@@ -110,7 +110,7 @@ public class BoardService {
 
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스입니다."));
 
-        authorizationValidator.checkWorkspaceAuthorization(user, workspace, WorkspaceRole.MEMBER);
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MEMBER);
 
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 보드입니다."));
 
@@ -143,7 +143,7 @@ public class BoardService {
 
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 워크스페이스입니다."));
 
-        authorizationValidator.checkWorkspaceAuthorization(user, workspace, WorkspaceRole.MEMBER);
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MEMBER);
 
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 보드입니다."));
 

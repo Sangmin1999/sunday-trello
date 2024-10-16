@@ -62,7 +62,7 @@ public class WorkspaceService {
 
         Workspace workspace = findWorkspace(workspaceId);
 
-        authorizationValidator.checkWorkspaceAuthorization(user, workspace, WorkspaceRole.MANAGER);
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MANAGER);
 
         workspace.update(request.getName(), request.getDescription());
 
@@ -79,7 +79,7 @@ public class WorkspaceService {
 
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("해당 워크스페이스가 존재하지 않습니다."));
 
-        authorizationValidator.checkWorkspaceAuthorization(user, workspace, WorkspaceRole.READ_ONLY);
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.READ_ONLY);
 
         return new WorkspaceResponse(
                 workspace.getId(),
@@ -108,7 +108,7 @@ public class WorkspaceService {
 
         authorizationValidator.checkUserAuthorization(user);
 
-        authorizationValidator.checkWorkspaceAuthorization(user, workspace, WorkspaceRole.MANAGER);
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MANAGER);
 
         workspaceRepository.delete(workspace);
     }
