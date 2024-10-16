@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @Entity
-public class List extends Timestamped {
+public class BoardList extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +21,7 @@ public class List extends Timestamped {
     @JoinColumn(name = "board_id")
     private Board board;
 
-    public List(String title, int order, Board board) {
+    public BoardList(String title, int order, Board board) {
         this.title = title;
         this.order = order;
         this.board = board;
