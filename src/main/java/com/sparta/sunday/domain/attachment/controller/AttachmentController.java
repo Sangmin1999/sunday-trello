@@ -21,16 +21,4 @@ public class AttachmentController {
         return attachmentService.uploadAttachment(file,cardId,authUser);
     }
 
-    /*@GetMapping("/card/{cardId}/attachments/{attachmentsId}")
-    public ResponseEntity<GetAttachmentPesponse> getAttachment(@PathVariable long cardId,
-                                                               @PathVariable long attachmentsId,
-                                                               @AuthenticationPrincipal AuthUser authUser){
-        return attachmentService.getAttachment(cardId,attachmentsId,authUser);
-    }*/
-
-    @GetMapping("/attachments/{attachmentsId}")
-    public void getAttachmentTest(@PathVariable Long attachmentsId) {
-        attachmentService.getAttachmentTest(attachmentsId);
-    }
-
 }

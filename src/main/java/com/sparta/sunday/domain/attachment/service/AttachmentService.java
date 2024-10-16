@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.UUID;
 
 @Slf4j
@@ -39,32 +40,31 @@ public class AttachmentService {
     public ResponseEntity<UploadAttachmentResponse> uploadAttachment(MultipartFile file, Long cardId, AuthUser authUser) {
 
         User user = User.fromAuthUser(authUser);
+        if(!user.getUserRole().equals(""))
         /*Card card = cardRepository.findById(cardId).orElseThrow(() ->
                 new InvalidRequestException("Card not found"));*/
-        String fileName = makeFileName(file);
-        String URL = makeFileUrl(fileName,bucketName,region);
         uploadFile(file,bucketName);
+        URL url = getUrl(bucketName, file.getOriginalFilename());
         UploadAttachmentResponse uploadAttachmentResponse = new UploadAttachmentResponse(
-                fileName,
+                file.getOriginalFilename(),
                 user.getId(),
-                URL
+                url
         );
 
         return ResponseEntity.ok(uploadAttachmentResponse);
     }
 
+
     /*--------------------------------------------------util---------------------------------------------------------------*/
     public String makeFileName(MultipartFile file){
         return UUID.randomUUID() + file.getOriginalFilename();
-    }
 
-    public String makeFileUrl(String fileName, String bucketName, String region){
-        return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileName;
     }
 
     public void uploadFile(MultipartFile file,String bucketName) {
 
         String fileName = makeFileName(file);
+
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
@@ -76,15 +76,9 @@ public class AttachmentService {
         }
     }
 
-    public void getAttachmentTest(Long attachmentsId) {
-
-        Attachment attachment = attachmentRepository.findById(attachmentsId).orElseThrow(()->
-                new InvalidRequestException("Card not found"));
-        String fileName = attachment.getFileName();
-        System.out.println(fileName);
-        System.out.println(attachment.getUploaderId());
-        System.out.println(attachment.getPath());
-        System.out.println(attachment.getFormat());
-        System.out.println(attachment.getSize());
+    // 버킷 이름과 오리지널 파일이름으로 URL 반환하는 메서드
+    public URL getUrl(String bucketName, String orginalFileName) {
+       return amazonS3Client.getUrl(bucketName, orginalFileName);
     }
+
 }
