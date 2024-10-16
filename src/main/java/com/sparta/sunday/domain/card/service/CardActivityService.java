@@ -32,6 +32,6 @@ public class CardActivityService {
         CardActivity cardActivity = new CardActivity(card, action, user);
         cardActivityRepository.save(cardActivity);
 
-        alarmService.saveAlarm(AlarmType.CARD, card.getId(), user, card.getActivities().get(0).getUser().getEmail());
+        //alarmService.saveAlarm(AlarmType.CARD, card.getId(), user, card.getActivities().get(0).getUser().getEmail());
     }
 }
