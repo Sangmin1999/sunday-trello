@@ -1,6 +1,7 @@
 package com.sparta.sunday.domain.comment.entity;
 
 import com.sparta.sunday.domain.board.entity.Board;
+import com.sparta.sunday.domain.card.entity.Card;
 import com.sparta.sunday.domain.comment.dto.CommentRequest;
 import com.sparta.sunday.domain.common.entity.Timestamped;
 import com.sparta.sunday.domain.user.entity.User;
@@ -28,17 +29,17 @@ public class Comment extends Timestamped {
     private LocalDateTime deletedAt;
 
     @ManyToOne
-    @JoinColumn(name = "board_id")
-    private Board board;
+    @JoinColumn(name = "card_id")
+    private Card card;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    public static Comment of(CommentRequest commentRequest, Board board, User user) {
+    public static Comment of(CommentRequest commentRequest, Card card, User user) {
         Comment comment = new Comment();
         comment.content = commentRequest.getContent();
-        comment.board = board;
+        comment.card = card;
         comment.user = user;
         return comment;
     }
