@@ -11,8 +11,8 @@ import com.sparta.sunday.domain.workspace.entity.WorkspaceMember;
 import com.sparta.sunday.domain.workspace.enums.WorkspaceRole;
 import com.sparta.sunday.domain.workspace.repository.WorkspaceMemberRepository;
 import com.sparta.sunday.domain.workspace.repository.WorkspaceRepository;
-import com.sparta.sunday.exception.EntityNotFoundException;
-import com.sparta.sunday.exception.UnAuthorizedException;
+import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
+import com.sparta.sunday.domain.common.exception.UnAuthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,8 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
