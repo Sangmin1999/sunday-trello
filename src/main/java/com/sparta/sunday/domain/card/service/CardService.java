@@ -1,5 +1,6 @@
 package com.sparta.sunday.domain.card.service;
 
+import com.slack.api.methods.SlackApiException;
 import com.sparta.sunday.domain.card.dto.request.CardRequest;
 import com.sparta.sunday.domain.card.dto.response.CardResponse;
 import com.sparta.sunday.domain.card.entity.Card;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Service
@@ -32,7 +34,7 @@ public class CardService {
     private final AuthorizationValidator authorizationValidator;
 
     @Transactional
-    public CardResponse createCard(Long workspaceId, Long listId, CardRequest cardRequest, AuthUser authUser) {
+    public CardResponse createCard(Long workspaceId, Long listId, CardRequest cardRequest, AuthUser authUser) throws SlackApiException, IOException {
         authorizationValidator.checkWorkspaceAuthorization(authUser.getUserId(), workspaceId, WorkspaceRole.MEMBER);
 
         BoardList boardList = listRepository.findById(listId)
