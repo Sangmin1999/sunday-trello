@@ -56,13 +56,14 @@ public class AttachmentService {
                     file.getSize(),
                     fileUrl,
                     file.getName(),
-                    user.getUsername(),
-                    card
+                    user.getUsername()*//*,
+                    card*//*
             );
 
             attachmentRepository.save(attachment);
             UploadAttachmentResponse uploadAttachmentResponse = new UploadAttachmentResponse(
                     attachment.getId(),
+                    1L,
                     attachment.getFileName(),
                     attachment.getUploader(),
                     attachment.getPath()
