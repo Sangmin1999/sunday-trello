@@ -2,10 +2,8 @@ package com.sparta.sunday.domain.attachment.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.sparta.sunday.config.AuthUser;
-import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
+import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.attachment.entity.Attachment;
-import com.sparta.sunday.domain.attachment.repository.AttachmentRepository;
 import com.sparta.sunday.domain.common.exception.InvalidRequestException;
 import com.sparta.sunday.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class AttachmentService {
 
-    private final AttachmentRepository attachmentRepository;
+    //private final AttachmentRepository attachmentRepository;
     //private final CardRepository cardRepository;
     private final AmazonS3Client amazonS3Client;
 

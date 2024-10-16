@@ -1,7 +1,6 @@
 package com.sparta.sunday.domain.attachment.controller;
 
-import com.sparta.sunday.config.AuthUser;
-import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
+import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.attachment.service.AttachmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
