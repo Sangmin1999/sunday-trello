@@ -1,5 +1,6 @@
 package com.sparta.sunday.config;
 
+import com.sparta.sunday.domain.common.dto.AuthUser;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
