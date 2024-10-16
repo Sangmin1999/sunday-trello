@@ -18,18 +18,18 @@ public class CommentController {
 
     private final CommentService commentService;
 
-//    @PostMapping("/{boardId}/comments")
-    @PostMapping("/comments")
+    @PostMapping("/{boardId}/comments")
     public ResponseEntity<CommentResponse> saveComment(
+            @PathVariable long boardId,
             @RequestBody CommentRequest commentRequest,
             @AuthenticationPrincipal AuthUser authUser) {
-        return ResponseEntity.ok(commentService.saveComment(commentRequest, authUser));
+        return ResponseEntity.ok(commentService.saveComment(boardId, commentRequest, authUser));
     }
 
-//    @GetMapping("/{boardId}/comments")
-    @GetMapping("/comments")
-    public ResponseEntity<List<CommentResponse>> getComment() {
-        return ResponseEntity.ok(commentService.getComment());
+    @GetMapping("/{boardId}/comments")
+    public ResponseEntity<List<CommentResponse>> getComment(
+            @PathVariable long boardId) {
+        return ResponseEntity.ok(commentService.getComment(boardId));
     }
 
     @PatchMapping("/comments/{commentId}")

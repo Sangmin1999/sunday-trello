@@ -1,5 +1,7 @@
 package com.sparta.sunday.domain.comment.service;
 
+import com.sparta.sunday.domain.board.entity.Board;
+import com.sparta.sunday.domain.board.repository.BoardRepository;
 import com.sparta.sunday.domain.comment.dto.CommentRequest;
 import com.sparta.sunday.domain.comment.dto.CommentResponse;
 import com.sparta.sunday.domain.comment.entity.Comment;
@@ -20,14 +22,18 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final BoardRepository boardRepository;
 
     @Transactional
-    public CommentResponse saveComment(CommentRequest commentRequest, AuthUser authUser) {
+    public CommentResponse saveComment(long boardId, CommentRequest commentRequest, AuthUser authUser) {
 
         User user = userRepository.findById(authUser.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("없는 유저"));
 
-        Comment comment = Comment.of(commentRequest, user);
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 보드"));
+
+        Comment comment = Comment.of(commentRequest, board, user);
 
         commentRepository.save(comment);
 
@@ -35,9 +41,12 @@ public class CommentService {
 
     }
 
-    public List<CommentResponse> getComment() {
+    public List<CommentResponse> getComment(long boardId) {
 
-        return commentRepository.findAllByDeletedAtNull().stream()
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("없는 보드"));
+
+        return commentRepository.findAllByDeletedAtNullAndBoard(board).stream()
                 .map(comment -> new CommentResponse(comment.getId(), comment.getContent())).toList();
 
     }
