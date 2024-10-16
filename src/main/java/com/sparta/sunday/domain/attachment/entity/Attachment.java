@@ -3,7 +3,6 @@ import com.sparta.sunday.domain.common.entity.Timestamped;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import javax.smartcardio.Card;
 
 
 @NoArgsConstructor
@@ -25,23 +24,25 @@ public class Attachment extends Timestamped {
 
     private String uploader;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    /*@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "card_id", nullable = false)
-    private Card card;
+    private Card card;*/
 
 
     public Attachment(String format,
                       Long size,
                       String path,
                       String fileName,
-                      String uploader,
-                      Card card)
+                      String uploader/*,
+                      Card card*/)
     {
         this.format = format;
         this.size = size;
         this.path = path;
         this.fileName = fileName;
         this.uploader = uploader;
+/*
         this.card = card;
+*/
     }
 }
