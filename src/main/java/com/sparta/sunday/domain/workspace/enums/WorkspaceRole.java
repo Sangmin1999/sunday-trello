@@ -5,9 +5,9 @@ import com.sun.jdi.request.InvalidRequestStateException;
 import java.util.Arrays;
 
 public enum WorkspaceRole {
-    MEMBER(1),
-    MANAGER(2),
-    ADMIN(3);
+    READ_ONLY(1),
+    MEMBER(2),
+    MANAGER(3);
 
     private final int value;
 
