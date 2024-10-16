@@ -9,7 +9,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     public JwtAuthenticationToken(AuthUser authUser) {
         super(authUser.getAuthorities());
         this.authUser = authUser;
-        setDetails(true);
+        setAuthenticated(true);
     }
 
     @Override
