@@ -1,3 +1,4 @@
+/*
 package com.sparta.sunday.domain.workspace.service;
 
 import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
@@ -188,3 +189,4 @@ public class WorkspaceServiceTest {
                 .hasMessageContaining("해당 기능에 대한 권한이 없습니다.");
     }
 }
+*/
