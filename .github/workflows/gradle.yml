@@ -84,7 +84,16 @@ jobs:
         script: |
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/docker-test:latest
           sudo docker stop $(sudo docker ps -a -q)
-          sudo docker run -d --log-driver=syslog -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/docker-test:latest
+          sudo docker run -d --log-driver=syslog -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/docker-test:latest \
+          -e DB_NAME=${{secrets.DB_NAME}} \
+          -e DB_USERNAME=${{secrets.DB_USERNAME}} \
+          -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
+          -e AWS_ACCESS_KEY=${{secrets.AWS_ACCESS_KEY}} \
+          -e AWS_SECRET_KEY=${{secrets.AWS_SECRET_KEY}} \
+          -e AWS_BUCKET_NAME=${{secrets.AWS_BUCKET_NAME}} \
+          -e AWS_REGION=${{secrets.AWS_REGION}} \
+          -e JWT_SECRET_KEY=${{secrets.JWT_SECRET_KEY}} \
+          -e SLACK_BOT_TOKEN=${{secrets.SLACK_BOT_TOKEN}} \
           sudo docker rm $(sudo docker ps --filter 'status=exited' -a -q)
           sudo docker image prune -a -f
 
