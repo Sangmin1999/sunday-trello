@@ -1,6 +1,8 @@
 package com.sparta.sunday.domain.workspace.controller;
 
+import com.slack.api.methods.SlackApiException;
 import com.sparta.sunday.domain.common.dto.AuthUser;
+import com.sparta.sunday.domain.workspace.dto.request.ChangeWorkspaceMemeberRoleRequest;
 import com.sparta.sunday.domain.workspace.dto.request.InviteWorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.request.WorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.response.WorkspaceResponse;
@@ -11,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/workspaces")
@@ -20,7 +24,6 @@ public class WorkspaceController {
 
     @PostMapping
     public ResponseEntity<String> createWorkspace(@RequestBody WorkspaceRequest request, @AuthenticationPrincipal AuthUser authUser) {
-        System.out.println("??");
         workspaceService.createWorkspace(request, authUser.getUserId());
         return ResponseEntity.ok("워크스페이스가 성공적으로 생성되었습니다.");
     }
@@ -40,8 +43,6 @@ public class WorkspaceController {
 
     @GetMapping("/{workspaceId}")
     public ResponseEntity<WorkspaceResponse> getWorkspace(@PathVariable Long workspaceId, @AuthenticationPrincipal AuthUser authUser) {
-        System.out.println("??");
-
         return ResponseEntity.ok(workspaceService.getWorkspace(workspaceId, authUser.getUserId()));
     }
 
@@ -65,7 +66,7 @@ public class WorkspaceController {
             @RequestBody InviteWorkspaceRequest request,
             @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long workspaceId
-    ) {
+    ) throws SlackApiException, IOException {
         workspaceService.inviteMemberToWorkspace(request, authUser.getUserId(), workspaceId);
         return ResponseEntity.ok("성공적으로 초대 되었습니다.");
     }
