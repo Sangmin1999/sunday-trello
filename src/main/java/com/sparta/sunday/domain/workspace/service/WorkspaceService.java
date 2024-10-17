@@ -6,6 +6,7 @@ import com.sparta.sunday.domain.alarm.service.AlarmService;
 import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
 import com.sparta.sunday.domain.common.validator.AuthorizationValidator;
 import com.sparta.sunday.domain.user.entity.User;
+import com.sparta.sunday.domain.user.repository.UserRepository;
 import com.sparta.sunday.domain.user.service.AuthService;
 import com.sparta.sunday.domain.workspace.dto.request.ChangeWorkspaceMemeberRoleRequest;
 import com.sparta.sunday.domain.workspace.dto.request.InviteWorkspaceRequest;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +36,7 @@ public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
+    private final UserRepository userRepository;
     private final AuthorizationValidator authorizationValidator;
     private final AuthService authService;
     private final AlarmService alarmService;
@@ -116,21 +119,30 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public void inviteMemberToWorkspace(InviteWorkspaceRequest request, Long userId, Long workspaceId) throws SlackApiException, IOException {
-
-        User user = authService.findUser(userId);
+    public void inviteMemberToWorkspace(InviteWorkspaceRequest request, Long workspaceId) throws SlackApiException, IOException {
 
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("해당 워크스페이스가 존재하지 않습니다."));
 
-        WorkspaceMember workspaceMember = new WorkspaceMember(
-                WorkspaceRole.MEMBER,
-                workspace,
-                user);
-
-        workspaceMemberRepository.save(workspaceMember);
+        List<String> memberEmails = workspaceMemberRepository.findALlByWorkspaceId(workspaceId);
 
         for (String email : request.getInviteUserEmailList()) {
-            alarmService.saveAlarm(AlarmType.MEMBER, workspaceMember.getId(), user, email);
+
+            if (!memberEmails.contains(email)) {
+
+                User user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new IllegalArgumentException("없는 유저"));
+
+                WorkspaceMember workspaceMember = new WorkspaceMember(
+                        WorkspaceRole.MEMBER,
+                        workspace,
+                        user);
+
+                workspaceMemberRepository.save(workspaceMember);
+
+                alarmService.saveAlarm(AlarmType.MEMBER, workspaceMember.getId(), user, email);
+
+            }
+
         }
 
     }

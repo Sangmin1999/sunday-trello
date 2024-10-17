@@ -65,10 +65,9 @@ public class WorkspaceController {
     @PostMapping("/invite/{workspaceId}")
     public ResponseEntity<String> inviteMemberToWorkspace(
             @RequestBody InviteWorkspaceRequest request,
-            @AuthenticationPrincipal AuthUser authUser,
             @PathVariable Long workspaceId
     ) throws SlackApiException, IOException {
-        workspaceService.inviteMemberToWorkspace(request, authUser.getUserId(), workspaceId);
+        workspaceService.inviteMemberToWorkspace(request, workspaceId);
         return ResponseEntity.ok("성공적으로 초대 되었습니다.");
     }
 
