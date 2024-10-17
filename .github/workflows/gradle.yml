@@ -13,6 +13,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  RESOURCE_PATH: src/main/resources/application.yml
+
 jobs:
   build:
 
@@ -27,6 +30,18 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+
+    - name: Set yml file
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: ${{ env.RESOURCE_PATH }}
+      env:
+        cloud.aws.credentials.accessKey: ${{ secret.AWS_ACCESS_KEY }}
+        cloud.aws.credentials.secretKey: ${{ secret.AWS_SECRET_KEY }}
+        cloud.aws.s3.bucketName: ${{ secrets.AWS_BUCKET_NAME }}
+        cloud.aws.region.static: ${{ secrets.AWS_REGION }}
+        jwt.secret.key: ${{ secrets.JWT_SECRET_KEY }}
+        slack.bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
 
     - name: Setup MySQL
       uses: samin/mysql-action@v1
