@@ -13,6 +13,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  RESOURCE_PATH: src/main/resources/application.yml
+
 jobs:
   build:
 
@@ -28,13 +31,36 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Set yml file
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: ${{ env.RESOURCE_PATH }}
+      env:
+        cloud.aws.credentials.accessKey: ${{ secret.AWS_ACCESS_KEY }}
+        cloud.aws.credentials.secretKey: ${{ secret.AWS_SECRET_KEY }}
+        cloud.aws.s3.bucketName: ${{ secrets.AWS_BUCKET_NAME }}
+        cloud.aws.region.static: ${{ secrets.AWS_REGION }}
+        jwt.secret.key: ${{ secrets.JWT_SECRET_KEY }}
+        slack.bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+
+    - name: Setup MySQL
+      uses: samin/mysql-action@v1
+      with:
+          port: 3306
+          mysql database: ${{ secrets.DB_NAME }}
+          mysql user: ${{ secrets.DB_USERNAME }}
+          mysql password: ${{ secrets.DB_PASSWORD }}
+          character-set-server: 'utf8'
+
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
     - name: Build with Gradle Wrapper
-      run: ./gradlew build
+      run: |
+        chmod +x gradlew
+        ./gradlew build
 
     # Docker build & Push 
     - name: Docker build & push to Docker hub

@@ -53,7 +53,7 @@ public class CardService {
     private final AttachmentService attachmentService;
     private final AmazonS3Client amazonS3Client;
 
-    @Value("${bucketName}")
+    @Value("${cloud.aws.s3.bucketName}")
     private String bucketName;
 
     @Transactional
