@@ -87,11 +87,16 @@ public class AttachmentService {
                                  Long workspaceId,
                                  AuthUser authUser) {
         authorizationValidator.checkWorkspaceAuthorization(authUser.getUserId(),workspaceId, WorkspaceRole.MEMBER);
-        try {
-            amazonS3Client.deleteObject(new DeleteObjectRequest(deleateAttachment.getBucketName(), deleateAttachment.getFileName()));
+        if(amazonS3Client.doesObjectExist(deleateAttachment.getBucketName(),deleateAttachment.getFileName())) {
+            try {
+                amazonS3Client.deleteObject(new DeleteObjectRequest(deleateAttachment.getBucketName(), deleateAttachment.getFileName()));
 
-        } catch (AmazonServiceException e){
-            throw new InvalidRequestException("Could not delete attachment");
+
+            } catch (AmazonServiceException e) {
+                throw new InvalidRequestException("Could not delete attachment");
+            }
+        } else {
+            throw new InvalidRequestException("해당 파일이 존재하지 않습니다.");
         }
     }
 
