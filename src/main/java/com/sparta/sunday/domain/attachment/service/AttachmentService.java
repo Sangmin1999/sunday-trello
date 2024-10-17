@@ -41,6 +41,8 @@ public class AttachmentService {
     private final AmazonS3Client amazonS3Client;
     private final AuthorizationValidator authorizationValidator;
     private final FileValidator fileValidator;
+    private final List<String> acceptedTypes = Arrays.asList("jpg", "png","pdf", "csv");
+    private final Long maxSize = 5*1024*1024L;
 
     @Value("${cloud.aws.s3.bucketName}")
     private String bucketName;
@@ -48,8 +50,7 @@ public class AttachmentService {
     public ResponseEntity<UploadAttachmentResponse> uploadAttachment(MultipartFile file, Long cardId,Long workspaceId, AuthUser authUser) {
 
         // 파일 크기 확인 -> 파일 형식 확인 -> 유저 권한 확인
-        List<String> acceptedTypes = Arrays.asList("jpg", "png","pdf", "csv");
-        fileValidator.fileSizeValidator(file, 5*1000000L);
+        fileValidator.fileSizeValidator(file, maxSize);
         fileValidator.fileTypeValidator(file,acceptedTypes);
         authorizationValidator.checkWorkspaceAuthorization(authUser.getUserId(),workspaceId, WorkspaceRole.MEMBER);
 
