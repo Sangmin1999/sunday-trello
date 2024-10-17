@@ -12,7 +12,9 @@ import com.sparta.sunday.domain.alarm.repository.AlarmRepository;
 import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +24,9 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AlarmService {
 
-    @Value(value = "${slack.bot-token}")
-    private String slackToken;
-
     private final AlarmRepository alarmRepository;
     private final UserRepository userRepository;
+    private final SlackAlarmService slackAlarmService;
 
 
     @Transactional
@@ -39,24 +39,11 @@ public class AlarmService {
 
             String message = sendUser.getUsername() + "님께서 " + alarmType.getMessage();
 
-            MethodsClient client = Slack.getInstance().methods();
-
-            UsersLookupByEmailResponse response = client.usersLookupByEmail(UsersLookupByEmailRequest.builder()
-                    .token(slackToken)
-                    .email(receiveUserEmail)
-                    .build());
+            slackAlarmService.sendSlackAlarm(receiveUserEmail, message);
 
             Alarm alarm = Alarm.of(alarmType, itemId, receiveUser, sendUser, message);
 
             alarmRepository.save(alarm);
-
-            ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                    .token(slackToken)
-                    .channel(response.getUser().getId())
-                    .text(message)
-                    .build();
-
-            client.chatPostMessage(request);
 
         }
 
