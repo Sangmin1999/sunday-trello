@@ -6,7 +6,6 @@ import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse
 import com.sparta.sunday.domain.attachment.service.AttachmentService;
 import com.sparta.sunday.domain.card.dto.request.CardRequest;
 import com.sparta.sunday.domain.card.dto.response.CardDetailResponse;
-import com.sparta.sunday.domain.card.dto.response.CardResponse;
 import com.sparta.sunday.domain.card.dto.response.CardUpdateResponse;
 import com.sparta.sunday.domain.card.entity.Card;
 import com.sparta.sunday.domain.card.entity.CardAttachment;
@@ -22,7 +21,6 @@ import com.sparta.sunday.domain.list.repository.ListRepository;
 import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.user.enums.UserRole;
 import com.sparta.sunday.domain.user.repository.UserRepository;
-import com.sparta.sunday.domain.workspace.enums.WorkspaceRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +44,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
@@ -82,6 +81,7 @@ public class CardServiceTest {
     private BoardList mockBoardList;
     private CardRequest mockCardRequest;
     private AuthUser mockAuthUser;
+    private User mockUser;
 
     @BeforeEach
     public void setup() {
@@ -104,6 +104,8 @@ public class CardServiceTest {
         CardAttachment attachment = new CardAttachment("jpg", 100L, "/path/to/file", "test.jpg", mockAuthUser.getUserId(), mockCard);
         mockAttachments.add(attachment);
         mockCard.getCardAttachments().addAll(mockAttachments);
+
+        mockUser = new User(1L, "manager@example.com", UserRole.ROLE_ADMIN);
     }
 
     @Test
@@ -126,7 +128,6 @@ public class CardServiceTest {
 
         // Mock 유저 설정
         User mockManager = new User(2L, "manager@example.com", UserRole.ROLE_ADMIN);
-        given(userRepository.findByEmail("manager@example.com")).willReturn(Optional.of(mockManager));
 
         // Mock 파일 생성
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test".getBytes());
@@ -140,6 +141,8 @@ public class CardServiceTest {
         );
         given(attachmentService.uploadAttachment(eq(file), eq(mockCard.getId()), anyLong(), eq(mockAuthUser)))
                 .willReturn(ResponseEntity.ok(mockAttachmentResponse));
+
+        given(userRepository.findByEmail(any())).willReturn(Optional.ofNullable(mockUser));
 
         // When
         CardUpdateResponse response = cardService.updateCard(1L, 1L, mockCardRequest, file, mockAuthUser);
