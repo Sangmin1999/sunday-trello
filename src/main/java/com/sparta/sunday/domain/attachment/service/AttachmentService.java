@@ -70,7 +70,10 @@ public class AttachmentService {
     public ResponseEntity<GetAttachmentResponse> getAttachment(GetAttachmentRequest getAttachmentRequest) {
         try{
             S3Object object =amazonS3Client.getObject(getAttachmentRequest.getBucketName(),getAttachmentRequest.getFileName());
-            GetAttachmentResponse getAttachmentResponse = new GetAttachmentResponse(object.getBucketName(), object.getKey(),object.getObjectMetadata().getContentType());
+            GetAttachmentResponse getAttachmentResponse = new GetAttachmentResponse(object.getBucketName(),
+                    object.getKey(),
+                    object.getObjectMetadata().getContentType(),
+                    object.getObjectMetadata().getLastModified());
             return ResponseEntity.ok(getAttachmentResponse);
 
         } catch (AmazonServiceException e){
