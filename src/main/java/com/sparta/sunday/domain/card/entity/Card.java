@@ -1,5 +1,7 @@
 package com.sparta.sunday.domain.card.entity;
 
+import com.sparta.sunday.domain.attachment.entity.Attachment;
+import com.sparta.sunday.domain.comment.entity.Comment;
 import com.sparta.sunday.domain.common.entity.Timestamped;
 import com.sparta.sunday.domain.list.entity.BoardList;
 import jakarta.persistence.*;
@@ -33,6 +35,13 @@ public class Card extends Timestamped {
     @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<CardManager> cardManagerList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Attachment> attachments = new ArrayList<>();
+
+
     public Card(String title, String description, LocalDateTime dueTo, BoardList boardList) {
         this.title = title;
         this.description = description;
@@ -42,5 +51,11 @@ public class Card extends Timestamped {
 
     public void addManager(CardManager manager) {
         cardManagerList.add(manager);
+    }
+
+    public void update(String title, String description, LocalDateTime dueTo) {
+        this.title = title;
+        this.description = description;
+        this.dueTo = dueTo;
     }
 }

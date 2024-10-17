@@ -24,7 +24,7 @@ public class CardActivityService {
     private final AlarmService alarmService;
 
     @Transactional
-    public void logCardActivity(Card card, String action, AuthUser authUser) throws SlackApiException, IOException {
+    public void logCardActivity(Card card, String action, AuthUser authUser) {// throws SlackApiException, IOException {
 
         User user = userRepository.findById(authUser.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
@@ -32,6 +32,6 @@ public class CardActivityService {
         CardActivity cardActivity = new CardActivity(card, action, user);
         cardActivityRepository.save(cardActivity);
 
-        alarmService.saveAlarm(AlarmType.CARD, card.getId(), user, card.getActivities().get(0).getUser().getEmail());
+        //alarmService.saveAlarm(AlarmType.CARD, card.getId(), user, card.getActivities().get(0).getUser().getEmail());
     }
 }

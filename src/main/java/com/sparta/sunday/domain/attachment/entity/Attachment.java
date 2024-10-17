@@ -1,4 +1,5 @@
 package com.sparta.sunday.domain.attachment.entity;
+import com.sparta.sunday.domain.card.entity.Card;
 import com.sparta.sunday.domain.common.entity.Timestamped;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -24,25 +25,23 @@ public class Attachment extends Timestamped {
 
     private Long uploaderId;
 
-    /*@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "card_id", nullable = false)
-    private Card card;*/
+    private Card card;
 
 
     public Attachment(String format,
                       Long size,
                       String path,
                       String fileName,
-                      Long uploaderId/*,
-                      Card card*/)
+                      Long uploaderId,
+                      Card card)
     {
         this.format = format;
         this.size = size;
         this.path = path;
         this.fileName = fileName;
         this.uploaderId = uploaderId;
-/*
         this.card = card;
-*/
     }
 }
