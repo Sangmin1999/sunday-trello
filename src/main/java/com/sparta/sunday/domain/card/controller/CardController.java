@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -25,10 +26,11 @@ public class CardController {
     public ResponseEntity<CardResponse> createCard(
             @PathVariable Long workspaceId,
             @PathVariable Long listId,
+            @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestBody CardRequest cardRequest,
             @AuthenticationPrincipal AuthUser authUser
     ) throws SlackApiException, IOException {
-        return ResponseEntity.ok(cardService.createCard(workspaceId, listId, cardRequest, authUser));
+        return ResponseEntity.ok(cardService.createCard(workspaceId, listId, cardRequest, file, authUser));
     }
 
 
@@ -36,10 +38,11 @@ public class CardController {
     public ResponseEntity<CardUpdateResponse> updateCard(
             @PathVariable Long workspaceId,
             @PathVariable Long cardId,
+            @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestBody CardRequest cardRequest,
             @AuthenticationPrincipal AuthUser authUser
     ) { //throws SlackApiException, IOException {
-        return ResponseEntity.ok(cardService.upadteCard(workspaceId, cardId, cardRequest, authUser));
+        return ResponseEntity.ok(cardService.upadteCard(workspaceId, cardId, cardRequest, file, authUser));
     }
 
     @GetMapping("{cardId}")
