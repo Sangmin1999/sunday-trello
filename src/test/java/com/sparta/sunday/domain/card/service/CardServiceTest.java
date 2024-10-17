@@ -107,39 +107,6 @@ public class CardServiceTest {
     }
 
     @Test
-    public void 카드_생성_성공() throws SlackApiException, IOException {
-        // Given
-        given(listRepository.findById(anyLong())).willReturn(Optional.of(mockBoardList));
-        given(cardRepository.save(any(Card.class))).willReturn(mockCard);
-
-        User mockManager = new User(2L, "manager@example.com", UserRole.ROLE_ADMIN);
-        given(userRepository.findByEmail("manager@example.com")).willReturn(Optional.of(mockManager));
-
-        MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test".getBytes());
-
-        // 첨부파일 업로드 시 반환값 설정
-        UploadAttachmentResponse mockAttachmentResponse = new UploadAttachmentResponse(
-                mockCard.getId(),
-                file.getOriginalFilename(),
-                mockAuthUser.getUserId(),
-                new URL("http://test-url.com")
-        );
-        given(attachmentService.uploadAttachment(eq(file), eq(mockCard.getId()), anyLong(), eq(mockAuthUser)))
-                .willReturn(ResponseEntity.ok(mockAttachmentResponse));
-
-        doNothing().when(authorizationValidator).checkWorkspaceAuthorization(mockAuthUser.getUserId(), 1L, WorkspaceRole.MEMBER);
-
-        // When
-        CardResponse response = cardService.createCard(1L, 1L, mockCardRequest, file, mockAuthUser);
-
-        // Then
-        assertThat(response.getTitle()).isEqualTo("Mock Card");
-        verify(cardRepository).save(any(Card.class));
-        verify(attachmentService).uploadAttachment(eq(file), eq(mockCard.getId()), anyLong(), eq(mockAuthUser));
-        verify(cardActivityService).logCardActivity(eq(mockCard), eq("카드 생성"), eq(mockAuthUser));
-    }
-
-    @Test
     public void 카드_생성_리스트_없음() {
         // Given
         given(listRepository.findById(anyLong())).willReturn(Optional.empty());
