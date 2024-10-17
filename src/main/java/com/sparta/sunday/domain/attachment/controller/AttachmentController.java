@@ -1,8 +1,9 @@
 package com.sparta.sunday.domain.attachment.controller;
 
+import com.sparta.sunday.domain.attachment.dto.request.DeleateAttachment;
 import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
-import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.attachment.service.AttachmentService;
+import com.sparta.sunday.domain.common.dto.AuthUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,4 +23,10 @@ public class AttachmentController {
         return attachmentService.uploadAttachment(file,cardId,workspaceId,authUser);
     }
 
+    @DeleteMapping("workspace/{workspaceId}/card/{cardId}/attachments")
+    public void deleteAttachment(@RequestBody DeleateAttachment deleateAttachment,
+                                 @PathVariable Long workspaceId,
+                                 @AuthenticationPrincipal AuthUser authUser) {
+        attachmentService.deleteAttachment(deleateAttachment,workspaceId,authUser);
+    }
 }
