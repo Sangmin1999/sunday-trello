@@ -5,6 +5,7 @@ import com.slack.api.methods.SlackApiException;
 import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
 import com.sparta.sunday.domain.attachment.service.AttachmentService;
 import com.sparta.sunday.domain.card.dto.request.CardRequest;
+import com.sparta.sunday.domain.card.dto.response.CardDetailResponse;
 import com.sparta.sunday.domain.card.dto.response.CardResponse;
 import com.sparta.sunday.domain.card.dto.response.CardUpdateResponse;
 import com.sparta.sunday.domain.card.entity.Card;
@@ -196,5 +197,35 @@ public class CardServiceTest {
         verify(cardRepository, never()).save(any(Card.class));
     }
 
+    @Test
+    public void 카드_상세_조회_성공() {
+        // Given
+        given(cardRepository.findCardWithDetails(anyLong())).willReturn(Optional.of(mockCard));
+        given(cardManagerRepository.findCardManagersByCardId(anyLong())).willReturn(List.of());
+        given(commentRepository.findCommentsByCardId(anyLong())).willReturn(List.of());
+
+        // When
+        CardDetailResponse response = cardService.findCardWithDetails(1L);
+
+        // Then
+        assertThat(response.getTitle()).isEqualTo("Mock Card");
+        verify(cardRepository).findCardWithDetails(anyLong());
+        verify(cardManagerRepository).findCardManagersByCardId(anyLong());
+        verify(commentRepository).findCommentsByCardId(anyLong());
+    }
+
+    @Test
+    public void 카드_상세_조회_카드_없음() {
+        // Given
+        given(cardRepository.findCardWithDetails(anyLong())).willReturn(Optional.empty());
+
+        // When/Then
+        assertThatThrownBy(() -> cardService.findCardWithDetails(1L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("해당 카드를 찾을 수 없습니다");
+
+        verify(cardRepository).findCardWithDetails(anyLong());
+        verify(cardManagerRepository, never()).findCardManagersByCardId(anyLong());
+    }
 
 }
