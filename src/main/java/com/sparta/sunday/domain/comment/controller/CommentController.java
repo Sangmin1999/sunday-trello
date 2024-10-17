@@ -28,12 +28,6 @@ public class CommentController {
         return ResponseEntity.ok(commentService.saveComment(cardsId, commentRequest, authUser));
     }
 
-    @GetMapping("/{cardsId}/comments")
-    public ResponseEntity<List<CommentResponse>> getComment(
-            @PathVariable long cardsId) {
-        return ResponseEntity.ok(commentService.getComment(cardsId));
-    }
-
     @PatchMapping("/comments/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
             @RequestBody CommentRequest commentRequest,
