@@ -42,4 +42,14 @@ public class ListController {
         listService.deleteList(listId, authUser);
         return ResponseEntity.noContent().build();
     }
+
+    // 리스트 순서 변경 API
+    @PatchMapping("/{listId}/order")
+    public ResponseEntity<ListResponse> changeListOrder(
+            @PathVariable Long listId,
+            @RequestParam("newOrder") int newOrder,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        return ResponseEntity.ok(listService.changeListOrder(listId, newOrder, authUser));
+    }
 }
