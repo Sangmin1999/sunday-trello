@@ -9,7 +9,7 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum AlarmType {
     MEMBER("맴버를 추가하였습니다."),
-    CARD("카드를 추가하였습니다."),
+    CARD("카드를 변경하였습니다."),
     COMMENT("댓글을 추가하였습니다.");
 
     private final String message;
