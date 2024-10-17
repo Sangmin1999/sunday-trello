@@ -2,7 +2,6 @@ package com.sparta.sunday.domain.card.repository;
 
 import com.sparta.sunday.domain.card.entity.Card;
 import com.sparta.sunday.domain.list.entity.BoardList;
-import com.sparta.sunday.domain.card.entity.CardManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
