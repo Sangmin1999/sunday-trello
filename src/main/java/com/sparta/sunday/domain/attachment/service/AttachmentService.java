@@ -64,6 +64,7 @@ public class AttachmentService {
                 user.getId(),
                 url
         );
+
         return ResponseEntity.ok(uploadAttachmentResponse);
     }
 
