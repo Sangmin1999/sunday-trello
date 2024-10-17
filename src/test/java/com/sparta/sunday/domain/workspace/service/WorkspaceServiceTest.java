@@ -1,4 +1,4 @@
-/*
+
 package com.sparta.sunday.domain.workspace.service;
 
 import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
@@ -185,4 +185,4 @@ public class WorkspaceServiceTest {
         then(workspaceRepository).should().delete(mockWorkspace);
     }
 }
-*/
+
