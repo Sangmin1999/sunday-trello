@@ -30,4 +30,5 @@ public class CardActivity extends Timestamped {
         this.action = action;
         this.user = user;
     }
+
 }
