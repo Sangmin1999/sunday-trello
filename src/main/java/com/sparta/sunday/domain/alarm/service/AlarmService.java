@@ -1,20 +1,12 @@
 package com.sparta.sunday.domain.alarm.service;
 
-import com.slack.api.Slack;
-import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
-import com.slack.api.methods.request.chat.ChatPostMessageRequest;
-import com.slack.api.methods.request.users.UsersLookupByEmailRequest;
-import com.slack.api.methods.response.users.UsersLookupByEmailResponse;
 import com.sparta.sunday.domain.alarm.entity.Alarm;
 import com.sparta.sunday.domain.alarm.entity.AlarmType;
 import com.sparta.sunday.domain.alarm.repository.AlarmRepository;
 import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
