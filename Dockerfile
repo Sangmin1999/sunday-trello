@@ -6,5 +6,8 @@ ARG JAR_FILE=build/libs/*.jar
 # 애플리케이션 JAR 파일 복사
 COPY ${JAR_FILE} app.jar
 
+# YAML 파일 복사 (yml 파일이 있는 경로를 확인 후 수정)
+COPY src/main/resources/application-docker.yml /app/config/application-docker.yml
+
 # ENTRYPOINT 설정 (외부 yaml 설정 파일을 지정)
 ENTRYPOINT ["java", "-jar", "/app.jar", "--spring.config.location=classpath:/application-docker.yml,/app/config/application-docker.yml"]
