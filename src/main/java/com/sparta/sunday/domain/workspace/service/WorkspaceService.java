@@ -6,11 +6,11 @@ import com.sparta.sunday.domain.alarm.service.AlarmService;
 import com.sparta.sunday.domain.common.exception.EntityNotFoundException;
 import com.sparta.sunday.domain.common.validator.AuthorizationValidator;
 import com.sparta.sunday.domain.user.entity.User;
-import com.sparta.sunday.domain.user.repository.UserRepository;
 import com.sparta.sunday.domain.user.service.AuthService;
 import com.sparta.sunday.domain.workspace.dto.request.ChangeWorkspaceMemeberRoleRequest;
 import com.sparta.sunday.domain.workspace.dto.request.InviteWorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.request.WorkspaceRequest;
+import com.sparta.sunday.domain.workspace.dto.response.ChangeWorkspaceMemeberRoleResponse;
 import com.sparta.sunday.domain.workspace.dto.response.WorkspaceResponse;
 import com.sparta.sunday.domain.workspace.entity.Workspace;
 import com.sparta.sunday.domain.workspace.entity.WorkspaceMember;
@@ -34,7 +34,6 @@ public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
-    private final UserRepository userRepository;
     private final AuthorizationValidator authorizationValidator;
     private final AuthService authService;
     private final AlarmService alarmService;
@@ -65,8 +64,6 @@ public class WorkspaceService {
             Long userId
     ) {
 
-        User user = authService.findUser(userId);
-
         Workspace workspace = findWorkspace(workspaceId);
 
         authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MANAGER);
@@ -81,8 +78,6 @@ public class WorkspaceService {
     }
 
     public WorkspaceResponse getWorkspace(Long workspaceId, Long userId) {
-
-        User user = authService.findUser(userId);
 
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new EntityNotFoundException("해당 워크스페이스가 존재하지 않습니다."));
 
@@ -144,4 +139,21 @@ public class WorkspaceService {
         return workspaceRepository.findById(workspaceId).orElseThrow(
                 () -> new EntityNotFoundException("해당 워크스페이스가 존재하지 않습니다."));
     }
+
+    @Transactional
+    public ChangeWorkspaceMemeberRoleResponse changeWorkspaceMemberRole(
+            Long workspaceId,
+            ChangeWorkspaceMemeberRoleRequest changeWorkspaceMemeberRoleRequest,
+            Long userId
+    ) {
+
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MANAGER);
+
+        WorkspaceMember member = workspaceMemberRepository.findByMemberIdAndWorkspaceId(changeWorkspaceMemeberRoleRequest.getUserId(), workspaceId);
+
+        member.changeRole(changeWorkspaceMemeberRoleRequest.getRole());
+
+        return new ChangeWorkspaceMemeberRoleResponse(member);
+    }
+
 }

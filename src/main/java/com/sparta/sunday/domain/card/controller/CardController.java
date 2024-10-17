@@ -46,8 +46,8 @@ public class CardController {
             @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestBody CardRequest cardRequest,
             @AuthenticationPrincipal AuthUser authUser
-    ) { //throws SlackApiException, IOException {
-        return ResponseEntity.ok(cardService.upadteCard(workspaceId, cardId, cardRequest, file, authUser));
+    ) throws SlackApiException, IOException {
+        return ResponseEntity.ok(cardService.updateCard(workspaceId, cardId, cardRequest, file, authUser));
     }
 
     @GetMapping("{cardId}")
