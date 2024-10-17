@@ -23,6 +23,6 @@ public enum WorkspaceRole {
         return Arrays.stream(WorkspaceRole.values())
                 .filter(s -> s.name().equalsIgnoreCase(role))
                 .findFirst()
-                .orElseThrow(() -> new InvalidRequestStateException("유효하지 않은 OrderStatus"));
+                .orElseThrow(() -> new InvalidRequestStateException("유효하지 않은 WorkspaceRole"));
     }
 }

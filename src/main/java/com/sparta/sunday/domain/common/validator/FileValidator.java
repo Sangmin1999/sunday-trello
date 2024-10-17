@@ -1,16 +1,19 @@
 package com.sparta.sunday.domain.common.validator;
 
 import com.sparta.sunday.domain.common.exception.InvalidRequestException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Component
 public class FileValidator {
 
     public void fileSizeValidator(MultipartFile file, Long size) {
+        log.info(String.valueOf( file.getSize()));
         if(file.getSize() > size) {
             throw new IllegalArgumentException("파일 크기가 너무 큽니다." + file.getSize());
         }
