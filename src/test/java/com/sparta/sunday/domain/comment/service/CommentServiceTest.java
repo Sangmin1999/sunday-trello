@@ -72,7 +72,8 @@ class CommentServiceTest {
 
         testAuthUser = new AuthUser(1L, "test@mail.com", UserRole.ROLE_ADMIN);
 
-        testCommentRequest = new CommentRequest("내용");
+        testCommentRequest = new CommentRequest();
+        testCommentRequest.setContent("내용");
 
         testCommentResponse = new CommentResponse(1L, testUser.getUsername(), testCommentRequest.getContent());
 
@@ -121,7 +122,8 @@ class CommentServiceTest {
         // given
         String updateContent = "변경됨";
 
-        CommentRequest commentRequest = new CommentRequest(updateContent);
+        CommentRequest commentRequest = new CommentRequest();
+        commentRequest.setContent(updateContent);
 
         given(commentRepository.findByIdAndDeletedAtNull(anyLong())).willReturn(testComment);
 
