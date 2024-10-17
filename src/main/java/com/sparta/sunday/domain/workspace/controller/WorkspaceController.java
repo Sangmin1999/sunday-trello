@@ -5,6 +5,7 @@ import com.sparta.sunday.domain.common.dto.AuthUser;
 import com.sparta.sunday.domain.workspace.dto.request.ChangeWorkspaceMemeberRoleRequest;
 import com.sparta.sunday.domain.workspace.dto.request.InviteWorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.request.WorkspaceRequest;
+import com.sparta.sunday.domain.workspace.dto.response.ChangeWorkspaceMemeberRoleResponse;
 import com.sparta.sunday.domain.workspace.dto.response.WorkspaceResponse;
 import com.sparta.sunday.domain.workspace.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
@@ -69,5 +70,18 @@ public class WorkspaceController {
     ) throws SlackApiException, IOException {
         workspaceService.inviteMemberToWorkspace(request, authUser.getUserId(), workspaceId);
         return ResponseEntity.ok("성공적으로 초대 되었습니다.");
+    }
+
+    @PatchMapping("/{workspaceId}/workspacemembers")
+    public ResponseEntity<ChangeWorkspaceMemeberRoleResponse> changeWorkspaceMemberRole(
+            @PathVariable Long workspaceId,
+            @RequestBody ChangeWorkspaceMemeberRoleRequest changeWorkspaceMemeberRoleRequest,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        return ResponseEntity.ok(workspaceService.changeWorkspaceMemberRole(
+                workspaceId,
+                changeWorkspaceMemeberRoleRequest,
+                authUser.getUserId()
+        ));
     }
 }

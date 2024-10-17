@@ -11,6 +11,7 @@ import com.sparta.sunday.domain.user.service.AuthService;
 import com.sparta.sunday.domain.workspace.dto.request.ChangeWorkspaceMemeberRoleRequest;
 import com.sparta.sunday.domain.workspace.dto.request.InviteWorkspaceRequest;
 import com.sparta.sunday.domain.workspace.dto.request.WorkspaceRequest;
+import com.sparta.sunday.domain.workspace.dto.response.ChangeWorkspaceMemeberRoleResponse;
 import com.sparta.sunday.domain.workspace.dto.response.WorkspaceResponse;
 import com.sparta.sunday.domain.workspace.entity.Workspace;
 import com.sparta.sunday.domain.workspace.entity.WorkspaceMember;
@@ -144,4 +145,21 @@ public class WorkspaceService {
         return workspaceRepository.findById(workspaceId).orElseThrow(
                 () -> new EntityNotFoundException("해당 워크스페이스가 존재하지 않습니다."));
     }
+
+    @Transactional
+    public ChangeWorkspaceMemeberRoleResponse changeWorkspaceMemberRole(
+            Long workspaceId,
+            ChangeWorkspaceMemeberRoleRequest changeWorkspaceMemeberRoleRequest,
+            Long userId
+    ) {
+
+        authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MANAGER);
+
+        WorkspaceMember member = workspaceMemberRepository.findByMemberIdAndWorkspaceId(changeWorkspaceMemeberRoleRequest.getUserId(), workspaceId);
+
+        member.changeRole(changeWorkspaceMemeberRoleRequest.getRole());
+
+        return new ChangeWorkspaceMemeberRoleResponse(member);
+    }
+
 }
