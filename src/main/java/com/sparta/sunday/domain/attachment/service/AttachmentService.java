@@ -57,11 +57,11 @@ public class AttachmentService {
         User user = User.fromAuthUser(authUser);
         Card card = cardRepository.findById(cardId).orElseThrow(() ->
                 new InvalidRequestException("Card not found"));
-        uploadFile(file,bucketName);
+        String fileName = uploadFile(file,bucketName);
         URL url = getUrl(bucketName, file.getOriginalFilename());
         UploadAttachmentResponse uploadAttachmentResponse = new UploadAttachmentResponse(
                 card.getId(),
-                file.getOriginalFilename(),
+                fileName,
                 user.getId(),
                 url
         );
@@ -107,7 +107,7 @@ public class AttachmentService {
 
     }
 
-    public void uploadFile(MultipartFile file,String bucketName) {
+    public String uploadFile(MultipartFile file,String bucketName) {
 
         String fileName = makeFileName(file);
 
@@ -117,6 +117,7 @@ public class AttachmentService {
 
         try {
             amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
+            return fileName;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
