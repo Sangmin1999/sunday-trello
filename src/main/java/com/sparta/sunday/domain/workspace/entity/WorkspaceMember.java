@@ -36,4 +36,8 @@ public class WorkspaceMember extends Timestamped {
         this.workspace = workspace;
         this.member = user;
     }
+
+    public void changeRole(WorkspaceRole newRole) {
+        this.role = newRole;
+    }
 }
