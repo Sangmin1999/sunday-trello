@@ -21,8 +21,9 @@ public class CardResponse {
     private final List<String> cardManagers;
     private final List<CardActivity> activities;
     private final UploadAttachmentResponse attachmentResponse;
+    private final Long boardId;
 
-    public CardResponse(Card card, UploadAttachmentResponse attachmentResponse) {
+    public CardResponse(Card card, UploadAttachmentResponse attachmentResponse, Long boardId) {
         this.id = card.getId();
         this.title = card.getTitle();
         this.description = card.getDescription();
@@ -32,5 +33,6 @@ public class CardResponse {
                 .collect(Collectors.toList());
         this.activities = new ArrayList<>(card.getActivities());
         this.attachmentResponse = attachmentResponse;
+        this.boardId = boardId;
     }
 }
