@@ -49,12 +49,10 @@ jobs:
     - name: Setup MySQL
       uses: samin/mysql-action@v1
       with:
-        port: 3306
+        mysql version: 'latest'
         mysql database: ${{ secrets.DB_NAME }}
         mysql user: ${{ secrets.DB_USERNAME }}
         mysql password: ${{ secrets.DB_PASSWORD }}
-        character-set-server: 'utf8'
-
 
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
