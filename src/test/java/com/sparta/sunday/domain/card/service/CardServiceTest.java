@@ -36,10 +36,10 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CardServiceTest {
@@ -125,4 +125,19 @@ public class CardServiceTest {
         verify(attachmentService).uploadAttachment(eq(file), eq(mockCard.getId()), anyLong(), eq(mockAuthUser));
         verify(cardActivityService).logCardActivity(eq(mockCard), eq("카드 생성"), eq(mockAuthUser));
     }
+
+    @Test
+    public void 카드_생성_리스트_없음() {
+        // Given
+        given(listRepository.findById(anyLong())).willReturn(Optional.empty());
+
+        // When/Then
+        assertThatThrownBy(() -> cardService.createCard(1L, 1L, mockCardRequest, null, mockAuthUser))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("해당 리스트가 없습니다");
+
+        verify(cardRepository, never()).save(any(Card.class));
+    }
+
+
 }
