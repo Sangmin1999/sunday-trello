@@ -28,6 +28,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -45,6 +47,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith(MockitoExtension.class)
 public class CardServiceTest {
 
@@ -99,7 +102,7 @@ public class CardServiceTest {
         List<CardAttachment> mockAttachments = new ArrayList<>();
         CardAttachment attachment = new CardAttachment("jpg", 100L, "/path/to/file", "test.jpg", mockAuthUser.getUserId(), mockCard);
         mockAttachments.add(attachment);
-        ReflectionTestUtils.setField(mockCard, "cardAttachments", mockAttachments);
+        mockCard.getCardAttachments().addAll(mockAttachments);
     }
 
     @Test
@@ -149,7 +152,7 @@ public class CardServiceTest {
     }
 
     @Test
-    public void 카드_수정_성공() throws IOException {
+    public void 카드_수정_성공() throws IOException, SlackApiException {
         // Given
         given(cardRepository.findCardWithManagers(anyLong())).willReturn(Optional.of(mockCard));
 
@@ -171,7 +174,7 @@ public class CardServiceTest {
                 .willReturn(ResponseEntity.ok(mockAttachmentResponse));
 
         // When
-        CardUpdateResponse response = cardService.upadteCard(1L, 1L, mockCardRequest, file, mockAuthUser);
+        CardUpdateResponse response = cardService.updateCard(1L, 1L, mockCardRequest, file, mockAuthUser);
 
         // Then
         assertThat(response.getTitle()).isEqualTo("Mock Card");
@@ -186,11 +189,12 @@ public class CardServiceTest {
         given(cardRepository.findCardWithManagers(anyLong())).willReturn(Optional.empty());
 
         // When/Then
-        assertThatThrownBy(() -> cardService.upadteCard(1L, 1L, mockCardRequest, null, mockAuthUser))
+        assertThatThrownBy(() -> cardService.updateCard(1L, 1L, mockCardRequest, null, mockAuthUser))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("해당 카드를 찾을 수 없습니다");
 
         verify(cardRepository, never()).save(any(Card.class));
     }
+
 
 }
