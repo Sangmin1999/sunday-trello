@@ -4,7 +4,10 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
 import com.sparta.sunday.domain.attachment.dto.request.DeleateAttachment;
+import com.sparta.sunday.domain.attachment.dto.request.GetAttachmentRequest;
+import com.sparta.sunday.domain.attachment.dto.response.GetAttachmentResponse;
 import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
 import com.sparta.sunday.domain.card.entity.Card;
 import com.sparta.sunday.domain.card.repository.CardRepository;
@@ -64,6 +67,16 @@ public class AttachmentService {
         return ResponseEntity.ok(uploadAttachmentResponse);
     }
 
+    public ResponseEntity<GetAttachmentResponse> getAttachment(GetAttachmentRequest getAttachmentRequest) {
+        try{
+            S3Object object =amazonS3Client.getObject(getAttachmentRequest.getBucketName(),getAttachmentRequest.getFileName());
+            GetAttachmentResponse getAttachmentResponse = new GetAttachmentResponse(object.getBucketName(), object.getKey(),object.getObjectMetadata().getContentType());
+            return ResponseEntity.ok(getAttachmentResponse);
+
+        } catch (AmazonServiceException e){
+            throw new InvalidRequestException("Could not get attachment");
+        }
+    }
 
     public void deleteAttachment(DeleateAttachment deleateAttachment,
                                  Long workspaceId,
