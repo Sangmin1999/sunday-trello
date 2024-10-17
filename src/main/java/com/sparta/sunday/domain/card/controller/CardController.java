@@ -4,16 +4,21 @@ import com.slack.api.methods.SlackApiException;
 import com.sparta.sunday.domain.card.dto.request.CardRequest;
 import com.sparta.sunday.domain.card.dto.response.CardDetailResponse;
 import com.sparta.sunday.domain.card.dto.response.CardResponse;
+import com.sparta.sunday.domain.card.dto.response.CardSearchResponse;
 import com.sparta.sunday.domain.card.dto.response.CardUpdateResponse;
+import com.sparta.sunday.domain.card.entity.Card;
 import com.sparta.sunday.domain.card.service.CardService;
 import com.sparta.sunday.domain.common.dto.AuthUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -62,4 +67,18 @@ public class CardController {
         cardService.deleteCard(workspaceId, cardId, authUser);
         return ResponseEntity.ok("카드가 성공적으로 삭제되었습니다.");
     }
+
+    @GetMapping("/serch")
+    public ResponseEntity<List<CardSearchResponse>> serchCard(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "100") int size,
+            @RequestParam(required = false) Long boardId,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) LocalDateTime dueTo,
+            @RequestParam(required = false) String manager
+    ){
+        return ResponseEntity.ok(cardService.serchCard(page,size,boardId,title,description,dueTo,manager));
+    }
+
 }

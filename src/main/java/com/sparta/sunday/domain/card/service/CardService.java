@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.slack.api.methods.SlackApiException;
 import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
 import com.sparta.sunday.domain.attachment.service.AttachmentService;
+import com.sparta.sunday.domain.card.dto.response.CardSearchResponse;
 import com.sparta.sunday.domain.card.entity.CardAttachment;
 import com.sparta.sunday.domain.card.repository.CardAttachmentRepository;
 import com.sparta.sunday.domain.card.dto.request.CardRequest;
@@ -27,6 +28,9 @@ import com.sparta.sunday.domain.user.repository.UserRepository;
 import com.sparta.sunday.domain.workspace.enums.WorkspaceRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -80,7 +84,7 @@ public class CardService {
             attachmentResponse = attachmentService.uploadAttachment(file, savedCard.getId(), workspaceId, authUser).getBody();
         }
 
-        return new CardResponse(savedCard, attachmentResponse);
+        return new CardResponse(savedCard, attachmentResponse,card.getBoardList().getBoard().getId());
     }
 
     @Transactional
@@ -171,4 +175,25 @@ public class CardService {
         card.addManager(cardManager); // Card 엔티티에 매니저 추가
     }
 
+    public List<CardSearchResponse> serchCard(
+                                int page,
+                                int size,
+                                Long boardId,
+                                String title,
+                                String description,
+                                LocalDateTime dueTo,
+                                String manager) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        if(boardId == null) {
+            return cardRepository.search(pageable,title,description, dueTo, manager).stream()
+                    .map(card -> new CardSearchResponse(card.getId(), card.getTitle(),card.getDescription(),card.getDueTo()))
+                    .toList();
+        }
+        else {
+            return cardRepository.findCardWithBoardId(pageable,boardId).stream()
+                    .map(card -> new CardSearchResponse(card.getId(), card.getTitle(),card.getDescription(),card.getDueTo()))
+                    .toList();
+        }
+    }
 }
