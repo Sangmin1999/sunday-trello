@@ -32,9 +32,10 @@ public class AttachmentController {
     }
 
     @DeleteMapping()
-    public void deleteAttachment(@RequestBody DeleateAttachment deleateAttachment,
+    public ResponseEntity<String> deleteAttachment(@RequestBody DeleateAttachment deleateAttachment,
                                  @PathVariable Long workspaceId,
                                  @AuthenticationPrincipal AuthUser authUser) {
         attachmentService.deleteAttachment(deleateAttachment,workspaceId,authUser);
+        return ResponseEntity.ok("첨부파일이 성공적으로 삭제되었습니다.");
     }
 }
