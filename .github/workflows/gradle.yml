@@ -48,7 +48,7 @@ jobs:
         script: |
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/docker-test:latest
           sudo docker stop $(sudo docker ps -a -q)
-          sudo docker run -d --log-driver=syslog -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/docker-test:latest \
+          sudo docker run -d --name ${{ secrets.DOCKER_USERNAME }}/docker-test:latest -p 8080:8080 \
           -e DB_NAME=${{secrets.DB_NAME}} \
           -e DB_USERNAME=${{secrets.DB_USERNAME}} \
           -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
