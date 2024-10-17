@@ -1,11 +1,15 @@
 package com.sparta.sunday.domain.board.entity;
 
 import com.sparta.sunday.domain.common.entity.Timestamped;
+import com.sparta.sunday.domain.list.entity.BoardList;
 import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.workspace.entity.Workspace;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,6 +38,9 @@ public class Board extends Timestamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id")
     private Workspace workspace;
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardList> lists = new ArrayList<>();
 
     public Board(
             User user,

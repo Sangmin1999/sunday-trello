@@ -1,8 +1,11 @@
 package com.sparta.sunday.domain.card.service;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.slack.api.methods.SlackApiException;
-import com.sparta.sunday.domain.attachment.entity.Attachment;
-import com.sparta.sunday.domain.attachment.repository.AttachmentRepository;
+import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
+import com.sparta.sunday.domain.attachment.service.AttachmentService;
+import com.sparta.sunday.domain.card.entity.CardAttachment;
+import com.sparta.sunday.domain.card.repository.CardAttachmentRepository;
 import com.sparta.sunday.domain.card.dto.request.CardRequest;
 import com.sparta.sunday.domain.card.dto.response.CardDetailResponse;
 import com.sparta.sunday.domain.card.dto.response.CardResponse;
@@ -23,8 +26,10 @@ import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.user.repository.UserRepository;
 import com.sparta.sunday.domain.workspace.enums.WorkspaceRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -43,11 +48,16 @@ public class CardService {
     private final CardManagerRepository cardManagerRepository;
     private final UserRepository userRepository;
     private final AuthorizationValidator authorizationValidator;
-    private final AttachmentRepository attachmentRepository;
+    private final CardAttachmentRepository cardAttachmentRepository;
     private final CommentRepository commentRepository;
+    private final AttachmentService attachmentService;
+    private final AmazonS3Client amazonS3Client;
+
+    @Value("${bucketName}")
+    private String bucketName;
 
     @Transactional
-    public CardResponse createCard(Long workspaceId, Long listId, CardRequest cardRequest, AuthUser authUser) throws SlackApiException, IOException {
+    public CardResponse createCard(Long workspaceId, Long listId, CardRequest cardRequest, MultipartFile file, AuthUser authUser) throws SlackApiException, IOException {
         authorizationValidator.checkWorkspaceAuthorization(authUser.getUserId(), workspaceId, WorkspaceRole.MEMBER);
 
         BoardList boardList = listRepository.findById(listId)
@@ -65,11 +75,16 @@ public class CardService {
         addManagerToCard(savedCard, cardRequest.getManagerEmail());
         cardActivityService.logCardActivity(savedCard, "카드 생성", authUser);
 
-        return new CardResponse(savedCard);
+        UploadAttachmentResponse attachmentResponse = null;
+        if (file != null && !file.isEmpty()) {
+            attachmentResponse = attachmentService.uploadAttachment(file, savedCard.getId(), workspaceId, authUser).getBody();
+        }
+
+        return new CardResponse(savedCard, attachmentResponse);
     }
 
     @Transactional
-    public CardUpdateResponse upadteCard(Long workspaceId, Long cardId, CardRequest cardRequest, AuthUser authUser) { //throws SlackApiException, IOException {
+    public CardUpdateResponse upadteCard(Long workspaceId, Long cardId, CardRequest cardRequest, MultipartFile file, AuthUser authUser) { //throws SlackApiException, IOException {
         authorizationValidator.checkWorkspaceAuthorization(authUser.getUserId(), workspaceId, WorkspaceRole.MEMBER);
 
         Card card = cardRepository.findCardWithManagers(cardId)
@@ -86,7 +101,22 @@ public class CardService {
         addManagerToCard(card, cardRequest.getManagerEmail());
         cardActivityService.logCardActivity(card, "카드 수정", authUser);
 
-        return new CardUpdateResponse(card,activities);
+        UploadAttachmentResponse attachmentResponse = null;
+        if (file != null && !file.isEmpty()) {
+            // 1. 기존 첨부파일 조회
+            List<CardAttachment> existingAttachments = card.getCardAttachments(); // 카드의 첨부파일 리스트 가져오기
+            for (CardAttachment attachment : existingAttachments) {
+                // 2. S3에서 파일 삭제
+                amazonS3Client.deleteObject(bucketName, attachment.getFileName()); // S3에서 기존 파일 삭제
+                // 3. 데이터베이스에서 첨부파일 엔티티 삭제
+                cardAttachmentRepository.delete(attachment);
+            }
+
+            // 새 파일 업로드
+            attachmentResponse = attachmentService.uploadAttachment(file, card.getId(), workspaceId, authUser).getBody();
+        }
+
+        return new CardUpdateResponse(card,activities,attachmentResponse);
 
     }
 
@@ -106,18 +136,18 @@ public class CardService {
                 .collect(Collectors.toList());
 
         List<String> activities = cardActivityRepository.findGetActivitiesByCardId(cardId);
-        List<String> attachments = attachmentRepository.findAttachmentsByCardId(cardId);
+        List<String> attachments = cardAttachmentRepository.findAttachmentsByCardId(cardId);
 
         return new CardDetailResponse(
                 card.getId(),
                 card.getTitle(),
                 card.getDescription(),
                 card.getDueTo(),
-                managerIds,  // 매니저 ID
-                activities, // 활동 내역
-                card.getBoardList().getId(),  // 리스트 ID
-                commentContents,  // 댓글 목록
-                attachments  // 첨부파일 목록
+                managerIds,
+                activities,
+                card.getBoardList().getId(),
+                commentContents,
+                attachments
         );
     }
 

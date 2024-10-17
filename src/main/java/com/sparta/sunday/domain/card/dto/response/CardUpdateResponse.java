@@ -1,5 +1,6 @@
 package com.sparta.sunday.domain.card.dto.response;
 
+import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
 import com.sparta.sunday.domain.card.entity.Card;
 import com.sparta.sunday.domain.card.entity.CardActivity;
 import com.sparta.sunday.domain.card.entity.CardManager;
@@ -18,20 +19,19 @@ public class CardUpdateResponse {
     private final LocalDateTime dueTo;
     private final List<String> cardManagers;
     private final List<String> activities;
+    private final UploadAttachmentResponse attachmentResponse;
 
-    public CardUpdateResponse(Card card, List<CardActivity> activities) {
+    public CardUpdateResponse(Card card, List<CardActivity> activities, UploadAttachmentResponse attachmentResponse) {
         this.id = card.getId();
         this.title = card.getTitle();
         this.description = card.getDescription();
         this.dueTo = card.getDueTo();
-
-        // 매니저 리스트
         this.cardManagers = card.getCardManagerList().stream()
                 .map(CardManager::getManagerName)
                 .collect(Collectors.toList());
-
         this.activities = activities.stream()
                 .map(CardActivity::getAction)
                 .collect(Collectors.toList());
+        this.attachmentResponse = attachmentResponse;
     }
 }

@@ -1,7 +1,13 @@
 package com.sparta.sunday.domain.attachment.service;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.sparta.sunday.domain.attachment.dto.request.DeleateAttachment;
+import com.sparta.sunday.domain.attachment.dto.request.GetAttachmentRequest;
+import com.sparta.sunday.domain.attachment.dto.response.GetAttachmentResponse;
 import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
 import com.sparta.sunday.domain.card.entity.Card;
 import com.sparta.sunday.domain.card.repository.CardRepository;
@@ -35,6 +41,8 @@ public class AttachmentService {
     private final AmazonS3Client amazonS3Client;
     private final AuthorizationValidator authorizationValidator;
     private final FileValidator fileValidator;
+    private final List<String> acceptedTypes = Arrays.asList("jpg", "png","pdf", "csv");
+    private final Long maxSize = 5*1024*1024L;
 
     @Value("${cloud.aws.s3.bucketName}")
     private String bucketName;
@@ -42,8 +50,7 @@ public class AttachmentService {
     public ResponseEntity<UploadAttachmentResponse> uploadAttachment(MultipartFile file, Long cardId,Long workspaceId, AuthUser authUser) {
 
         // 파일 크기 확인 -> 파일 형식 확인 -> 유저 권한 확인
-        List<String> acceptedTypes = Arrays.asList("jpg", "png","pdf", "csv");
-        fileValidator.fileSizeValidator(file, 5*1000000L);
+        fileValidator.fileSizeValidator(file, maxSize);
         fileValidator.fileTypeValidator(file,acceptedTypes);
         authorizationValidator.checkWorkspaceAuthorization(authUser.getUserId(),workspaceId, WorkspaceRole.MEMBER);
 
@@ -62,7 +69,36 @@ public class AttachmentService {
         return ResponseEntity.ok(uploadAttachmentResponse);
     }
 
+    public ResponseEntity<GetAttachmentResponse> getAttachment(GetAttachmentRequest getAttachmentRequest) {
+        try{
+            S3Object object =amazonS3Client.getObject(getAttachmentRequest.getBucketName(),getAttachmentRequest.getFileName());
+            GetAttachmentResponse getAttachmentResponse = new GetAttachmentResponse(object.getBucketName(),
+                    object.getKey(),
+                    object.getObjectMetadata().getContentType(),
+                    object.getObjectMetadata().getLastModified());
+            return ResponseEntity.ok(getAttachmentResponse);
 
+        } catch (AmazonServiceException e){
+            throw new InvalidRequestException("Could not get attachment");
+        }
+    }
+
+    public void deleteAttachment(DeleateAttachment deleateAttachment,
+                                 Long workspaceId,
+                                 AuthUser authUser) {
+        authorizationValidator.checkWorkspaceAuthorization(authUser.getUserId(),workspaceId, WorkspaceRole.MEMBER);
+        if(amazonS3Client.doesObjectExist(deleateAttachment.getBucketName(),deleateAttachment.getFileName())) {
+            try {
+                amazonS3Client.deleteObject(new DeleteObjectRequest(deleateAttachment.getBucketName(), deleateAttachment.getFileName()));
+
+
+            } catch (AmazonServiceException e) {
+                throw new InvalidRequestException("Could not delete attachment");
+            }
+        } else {
+            throw new InvalidRequestException("해당 파일이 존재하지 않습니다.");
+        }
+    }
 
 
     /*--------------------------------------------------util---------------------------------------------------------------*/
