@@ -40,6 +40,10 @@ public class BoardService {
 
         authorizationValidator.checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MEMBER);
 
+        if (request.getImgUrl() != null && request.getBackgroundColor() != null) {
+            throw new IllegalArgumentException("배경색과 이미지 둘 중 하나만 입력해야 합니다.");
+        }
+
         String background = request.getImgUrl() == null
                 ? request.getBackgroundColor() : imgUrlValidator.isValidImageUrl(request.getImgUrl())
                 ? request.getImgUrl() : null;
@@ -63,13 +67,7 @@ public class BoardService {
 
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 보드입니다."));
 
-        return new BoardResponse(
-                board.getId(),
-                board.getTitle(),
-                board.getContent(),
-                board.getImgUrl(),
-                board.getBackgroundColor()
-        );
+        return new BoardResponse(board);
     }
 
     public Page<BoardResponse> getBoardList(int page, int size, Long workspaceId, Long userId) {
@@ -79,13 +77,7 @@ public class BoardService {
         Pageable pageable = PageRequest.of(page,size, Sort.by("updatedAt").descending());
         Page<Board> boards = boardRepository.findByWorkspaceId(workspaceId, pageable);
 
-        return boards.map(board -> new BoardResponse(
-                board.getId(),
-                board.getTitle(),
-                board.getContent(),
-                board.getImgUrl(),
-                board.getBackgroundColor()
-        ));
+        return boards.map(BoardResponse::new);
     }
 
     @Transactional
@@ -113,13 +105,7 @@ public class BoardService {
                 backgroundType
         );
 
-        return new BoardResponse(
-                board.getId(),
-                board.getTitle(),
-                board.getContent(),
-                board.getImgUrl(),
-                board.getBackgroundColor()
-        );
+        return new BoardResponse(board);
     }
 
     @Transactional

@@ -26,14 +26,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.Collections;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkspaceServiceTest {
@@ -107,37 +107,44 @@ public class WorkspaceServiceTest {
     @Test
     public void 워크스페이스_업데이트_성공() {
         // Given
-        given(userRepository.findById(any(Long.class))).willReturn(Optional.of(mockUser));
-        given(workspaceRepository.findById(any(Long.class))).willReturn(Optional.of(mockWorkspace));
-        given(workspaceMemberRepository.findByMemberIdAndWorkspaceId(any(Long.class), any(Long.class)))
-                .willReturn(new WorkspaceMember(WorkspaceRole.MANAGER, mockWorkspace, mockUser));
+        Long workspaceId = 1L;
+        Long userId = 1L;
+
+        WorkspaceRequest mockUpdateRequest = new WorkspaceRequest();
+        ReflectionTestUtils.setField(mockUpdateRequest, "name", "Updated workspace name");
+        ReflectionTestUtils.setField(mockUpdateRequest, "description", "Updated description");
+
+        given(workspaceRepository.findById(workspaceId)).willReturn(Optional.of(mockWorkspace));
 
         // When
-        WorkspaceResponse response = workspaceService.updateWorkspace(1L, mockRequest, 1L);
+        WorkspaceResponse response = workspaceService.updateWorkspace(workspaceId, mockUpdateRequest, userId);
 
         // Then
-        then(userRepository).should().findById(1L);
-        then(workspaceRepository).should().findById(1L);
-        then(workspaceMemberRepository).should().findByMemberIdAndWorkspaceId(1L, 1L);
-        assertEquals("workspace name", response.getName());
+        assertThat(response.getName()).isEqualTo("Updated workspace name");
+        assertThat(response.getDescription()).isEqualTo("Updated description");
+
+        then(authorizationValidator).should().checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MANAGER);
+
+        assertThat(mockWorkspace.getName()).isEqualTo("Updated workspace name");
+        assertThat(mockWorkspace.getDescription()).isEqualTo("Updated description");
     }
 
     @Test
     public void 워크스페이스_조회_성공() {
         // Given
-        given(userRepository.findById(any(Long.class))).willReturn(Optional.of(mockUser));
-        given(workspaceRepository.findById(any(Long.class))).willReturn(Optional.of(mockWorkspace));
-        given(workspaceMemberRepository.findByMemberIdAndWorkspaceId(any(Long.class), any(Long.class)))
-                .willReturn(new WorkspaceMember(WorkspaceRole.MANAGER, mockWorkspace, mockUser));
+        given(workspaceRepository.findById(1L)).willReturn(Optional.of(mockWorkspace));
+        doNothing().when(authorizationValidator).checkWorkspaceAuthorization(1L, 1L, WorkspaceRole.READ_ONLY);
 
         // When
         WorkspaceResponse response = workspaceService.getWorkspace(1L, 1L);
 
         // Then
-        then(userRepository).should().findById(1L);
+        assertThat(response.getId()).isEqualTo(mockWorkspace.getId());
+        assertThat(response.getName()).isEqualTo(mockWorkspace.getName());
+        assertThat(response.getDescription()).isEqualTo(mockWorkspace.getDescription());
+
         then(workspaceRepository).should().findById(1L);
-        then(workspaceMemberRepository).should().findByMemberIdAndWorkspaceId(1L, 1L);
-        assertEquals("workspace name", response.getName());
+        then(authorizationValidator).should().checkWorkspaceAuthorization(1L, 1L, WorkspaceRole.READ_ONLY);
     }
 
     @Test
@@ -159,40 +166,21 @@ public class WorkspaceServiceTest {
     @Test
     public void 워크스페이스_삭제_성공() {
         // Given
-        given(authService.findUser(any(Long.class))).willReturn(any(User.class));
-        given(workspaceRepository.findById(any(Long.class))).willReturn(Optional.of(mockWorkspace));
-        given(workspaceMemberRepository.findByMemberIdAndWorkspaceId(any(Long.class), any(Long.class)))
-                .willReturn(new WorkspaceMember(WorkspaceRole.MANAGER, mockWorkspace, mockUser));
+        Long workspaceId = 1L;
+        Long userId = 1L;
+        User mockUser = new User(1L, "email@example.com", UserRole.ROLE_ADMIN);
+
+        given(authService.findUser(userId)).willReturn(mockUser);
+        given(workspaceRepository.findById(workspaceId)).willReturn(Optional.of(mockWorkspace));
 
         // When
-        workspaceService.deleteWorkspace(1L, 1L);
+        workspaceService.deleteWorkspace(workspaceId, userId);
 
         // Then
-        then(authService).should().findUser(1L);
-        then(workspaceRepository).should().findById(1L);
+        then(authService).should().findUser(userId);
+        then(workspaceRepository).should().findById(workspaceId);
+        then(authorizationValidator).should().checkUserAuthorization(mockUser);
+        then(authorizationValidator).should().checkWorkspaceAuthorization(userId, workspaceId, WorkspaceRole.MANAGER);
         then(workspaceRepository).should().delete(mockWorkspace);
-    }
-
-    @Test
-    public void 유저_권한_확인() {
-        // Given
-        User unauthorizedUser = new User(1L, "unauthorized@example.com", UserRole.ROLE_USER);
-
-        // When/Then
-        assertThatThrownBy(() -> authorizationValidator.checkUserAuthorization(unauthorizedUser))
-                .isInstanceOf(UnAuthorizedException.class)
-                .hasMessageContaining("해당 기능에 대한 권한이 없습니다.");
-    }
-
-    @Test
-    public void 워크스페이스_멤버_권한_확인() {
-        // Given
-        given(workspaceMemberRepository.findByMemberIdAndWorkspaceId(any(Long.class), any(Long.class)))
-                .willReturn(new WorkspaceMember(WorkspaceRole.MEMBER, mockWorkspace, mockUser));
-
-        // When/Then
-        assertThatThrownBy(() -> authorizationValidator.checkWorkspaceAuthorization(any(Long.class), any(Long.class), WorkspaceRole.MANAGER))
-                .isInstanceOf(UnAuthorizedException.class)
-                .hasMessageContaining("해당 기능에 대한 권한이 없습니다.");
     }
 }
