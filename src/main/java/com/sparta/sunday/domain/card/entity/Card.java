@@ -1,6 +1,5 @@
 package com.sparta.sunday.domain.card.entity;
 
-import com.sparta.sunday.domain.attachment.entity.Attachment;
 import com.sparta.sunday.domain.comment.entity.Comment;
 import com.sparta.sunday.domain.common.entity.Timestamped;
 import com.sparta.sunday.domain.list.entity.BoardList;
@@ -39,7 +38,7 @@ public class Card extends Timestamped {
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<Attachment> attachments = new ArrayList<>();
+    private List<CardAttachment> cardAttachments = new ArrayList<>();
 
 
     public Card(String title, String description, LocalDateTime dueTo, BoardList boardList) {
