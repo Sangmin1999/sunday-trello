@@ -1,6 +1,7 @@
 package com.sparta.sunday.domain.card.repository;
 
 import com.sparta.sunday.domain.card.entity.Card;
+import com.sparta.sunday.domain.list.entity.BoardList;
 import com.sparta.sunday.domain.card.entity.CardManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,8 @@ public interface CardRepository extends JpaRepository<Card, Long> {
 
     @Query("SELECT c FROM Card c WHERE c.id = :cardId")
     Optional<Card> findCardWithDetails(@Param("cardId") Long cardId);
+
+    void deleteByBoardList(BoardList boardList);
 
     @Query("SELECT c FROM Card c " +
             "JOIN FETCH c.cardManagerList cm " +

@@ -4,17 +4,19 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.slack.api.methods.SlackApiException;
 import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
 import com.sparta.sunday.domain.attachment.service.AttachmentService;
+import com.sparta.sunday.domain.card.dto.request.CardRequest;
 import com.sparta.sunday.domain.card.dto.response.CardSearchResponse;
 import com.sparta.sunday.domain.card.entity.CardAttachment;
 import com.sparta.sunday.domain.card.repository.CardAttachmentRepository;
-import com.sparta.sunday.domain.card.dto.request.CardRequest;
 import com.sparta.sunday.domain.card.dto.response.CardDetailResponse;
 import com.sparta.sunday.domain.card.dto.response.CardResponse;
 import com.sparta.sunday.domain.card.dto.response.CardUpdateResponse;
 import com.sparta.sunday.domain.card.entity.Card;
 import com.sparta.sunday.domain.card.entity.CardActivity;
+import com.sparta.sunday.domain.card.entity.CardAttachment;
 import com.sparta.sunday.domain.card.entity.CardManager;
 import com.sparta.sunday.domain.card.repository.CardActivityRepository;
+import com.sparta.sunday.domain.card.repository.CardAttachmentRepository;
 import com.sparta.sunday.domain.card.repository.CardManagerRepository;
 import com.sparta.sunday.domain.card.repository.CardRepository;
 import com.sparta.sunday.domain.comment.entity.Comment;
@@ -57,7 +59,7 @@ public class CardService {
     private final AttachmentService attachmentService;
     private final AmazonS3Client amazonS3Client;
 
-    @Value("${bucketName}")
+    @Value("${cloud.aws.s3.bucketName}")
     private String bucketName;
 
     @Transactional
@@ -88,7 +90,7 @@ public class CardService {
     }
 
     @Transactional
-    public CardUpdateResponse upadteCard(Long workspaceId, Long cardId, CardRequest cardRequest, MultipartFile file, AuthUser authUser) { //throws SlackApiException, IOException {
+    public CardUpdateResponse updateCard(Long workspaceId, Long cardId, CardRequest cardRequest, MultipartFile file, AuthUser authUser) throws SlackApiException, IOException {
         authorizationValidator.checkWorkspaceAuthorization(authUser.getUserId(), workspaceId, WorkspaceRole.MEMBER);
 
         Card card = cardRepository.findCardWithManagers(cardId)
@@ -102,7 +104,6 @@ public class CardService {
                 LocalDateTime.parse(cardRequest.getDueTo())
         );
 
-        addManagerToCard(card, cardRequest.getManagerEmail());
         cardActivityService.logCardActivity(card, "카드 수정", authUser);
 
         UploadAttachmentResponse attachmentResponse = null;
@@ -120,7 +121,7 @@ public class CardService {
             attachmentResponse = attachmentService.uploadAttachment(file, card.getId(), workspaceId, authUser).getBody();
         }
 
-        return new CardUpdateResponse(card,activities,attachmentResponse);
+        return new CardUpdateResponse(card, activities, attachmentResponse);
 
     }
 
