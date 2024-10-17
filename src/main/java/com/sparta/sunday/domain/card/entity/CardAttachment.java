@@ -28,5 +28,13 @@ public class CardAttachment extends Timestamped {
     @JoinColumn(name = "card_id", nullable = false)
     private Card card;
 
+    public CardAttachment(String format, Long size, String path, String fileName, Long uploaderId, Card card) {
+        this.format = format;
+        this.size = size;
+        this.path = path;
+        this.fileName = fileName;
+        this.uploaderId = uploaderId;
+        this.card = card;
+    }
 
 }

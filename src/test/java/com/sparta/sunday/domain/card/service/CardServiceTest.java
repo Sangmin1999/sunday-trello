@@ -6,7 +6,9 @@ import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse
 import com.sparta.sunday.domain.attachment.service.AttachmentService;
 import com.sparta.sunday.domain.card.dto.request.CardRequest;
 import com.sparta.sunday.domain.card.dto.response.CardResponse;
+import com.sparta.sunday.domain.card.dto.response.CardUpdateResponse;
 import com.sparta.sunday.domain.card.entity.Card;
+import com.sparta.sunday.domain.card.entity.CardAttachment;
 import com.sparta.sunday.domain.card.repository.CardActivityRepository;
 import com.sparta.sunday.domain.card.repository.CardAttachmentRepository;
 import com.sparta.sunday.domain.card.repository.CardManagerRepository;
@@ -33,6 +35,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -91,6 +95,11 @@ public class CardServiceTest {
         ReflectionTestUtils.setField(mockCardRequest, "managerEmail", "manager@example.com");
 
         mockAuthUser = new AuthUser(1L, "user@example.com", UserRole.ROLE_ADMIN);
+
+        List<CardAttachment> mockAttachments = new ArrayList<>();
+        CardAttachment attachment = new CardAttachment("jpg", 100L, "/path/to/file", "test.jpg", mockAuthUser.getUserId(), mockCard);
+        mockAttachments.add(attachment);
+        ReflectionTestUtils.setField(mockCard, "cardAttachments", mockAttachments);
     }
 
     @Test
@@ -139,5 +148,49 @@ public class CardServiceTest {
         verify(cardRepository, never()).save(any(Card.class));
     }
 
+    @Test
+    public void 카드_수정_성공() throws IOException {
+        // Given
+        given(cardRepository.findCardWithManagers(anyLong())).willReturn(Optional.of(mockCard));
+
+        // Mock 유저 설정
+        User mockManager = new User(2L, "manager@example.com", UserRole.ROLE_ADMIN);
+        given(userRepository.findByEmail("manager@example.com")).willReturn(Optional.of(mockManager));
+
+        // Mock 파일 생성
+        MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test".getBytes());
+
+        // 첨부파일 업로드 시 반환값 설정
+        UploadAttachmentResponse mockAttachmentResponse = new UploadAttachmentResponse(
+                mockCard.getId(),
+                file.getOriginalFilename(),
+                mockAuthUser.getUserId(),
+                new URL("http://test-url.com")
+        );
+        given(attachmentService.uploadAttachment(eq(file), eq(mockCard.getId()), anyLong(), eq(mockAuthUser)))
+                .willReturn(ResponseEntity.ok(mockAttachmentResponse));
+
+        // When
+        CardUpdateResponse response = cardService.upadteCard(1L, 1L, mockCardRequest, file, mockAuthUser);
+
+        // Then
+        assertThat(response.getTitle()).isEqualTo("Mock Card");
+        verify(cardRepository).findCardWithManagers(anyLong());
+        verify(cardAttachmentRepository).delete(any(CardAttachment.class)); // 첨부파일 삭제 여부
+        verify(attachmentService).uploadAttachment(eq(file), eq(mockCard.getId()), anyLong(), eq(mockAuthUser));
+    }
+
+    @Test
+    public void 카드_수정_카드_없음() {
+        // Given
+        given(cardRepository.findCardWithManagers(anyLong())).willReturn(Optional.empty());
+
+        // When/Then
+        assertThatThrownBy(() -> cardService.upadteCard(1L, 1L, mockCardRequest, null, mockAuthUser))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("해당 카드를 찾을 수 없습니다");
+
+        verify(cardRepository, never()).save(any(Card.class));
+    }
 
 }
