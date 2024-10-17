@@ -5,11 +5,9 @@ import com.slack.api.methods.SlackApiException;
 import com.sparta.sunday.domain.attachment.dto.response.UploadAttachmentResponse;
 import com.sparta.sunday.domain.attachment.service.AttachmentService;
 import com.sparta.sunday.domain.card.dto.request.CardRequest;
-import com.sparta.sunday.domain.card.dto.response.CardSearchResponse;
-import com.sparta.sunday.domain.card.entity.CardAttachment;
-import com.sparta.sunday.domain.card.repository.CardAttachmentRepository;
 import com.sparta.sunday.domain.card.dto.response.CardDetailResponse;
 import com.sparta.sunday.domain.card.dto.response.CardResponse;
+import com.sparta.sunday.domain.card.dto.response.CardSearchResponse;
 import com.sparta.sunday.domain.card.dto.response.CardUpdateResponse;
 import com.sparta.sunday.domain.card.entity.Card;
 import com.sparta.sunday.domain.card.entity.CardActivity;
@@ -30,7 +28,6 @@ import com.sparta.sunday.domain.user.repository.UserRepository;
 import com.sparta.sunday.domain.workspace.enums.WorkspaceRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -103,6 +100,11 @@ public class CardService {
                 cardRequest.getDescription(),
                 LocalDateTime.parse(cardRequest.getDueTo())
         );
+
+        // 매니저 중복 추가 예외
+        if (!cardRequest.getManagerEmail().equals(authUser.getEmail())) {
+            addManagerToCard(card, authUser.getEmail());
+        }
 
         cardActivityService.logCardActivity(card, "카드 수정", authUser);
 
