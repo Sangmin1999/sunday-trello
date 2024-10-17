@@ -3,8 +3,6 @@ package com.sparta.sunday.domain.comment.service;
 import com.slack.api.methods.SlackApiException;
 import com.sparta.sunday.domain.alarm.entity.AlarmType;
 import com.sparta.sunday.domain.alarm.service.AlarmService;
-import com.sparta.sunday.domain.board.entity.Board;
-import com.sparta.sunday.domain.board.repository.BoardRepository;
 import com.sparta.sunday.domain.card.entity.Card;
 import com.sparta.sunday.domain.card.repository.CardRepository;
 import com.sparta.sunday.domain.comment.dto.CommentRequest;
@@ -12,15 +10,16 @@ import com.sparta.sunday.domain.comment.dto.CommentResponse;
 import com.sparta.sunday.domain.comment.entity.Comment;
 import com.sparta.sunday.domain.comment.repository.CommentRepository;
 import com.sparta.sunday.domain.common.dto.AuthUser;
+import com.sparta.sunday.domain.common.validator.AuthorizationValidator;
 import com.sparta.sunday.domain.user.entity.User;
 import com.sparta.sunday.domain.user.repository.UserRepository;
+import com.sparta.sunday.domain.workspace.enums.WorkspaceRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +29,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final CardRepository cardRepository;
     private final AlarmService alarmService;
+    private final AuthorizationValidator authorizationValidator;
 
     @Transactional
     public CommentResponse saveComment(long boardId, CommentRequest commentRequest, AuthUser authUser) throws SlackApiException, IOException {
@@ -39,6 +39,11 @@ public class CommentService {
 
         Card card = cardRepository.findById(boardId)
                 .orElseThrow(() -> new IllegalArgumentException("없는 카드"));
+
+        authorizationValidator.checkWorkspaceAuthorization(
+                user.getId(),
+                card.getBoardList().getBoard().getWorkspace().getId(),
+                WorkspaceRole.MEMBER);
 
         Comment comment = Comment.of(commentRequest, card, user);
 
@@ -50,17 +55,10 @@ public class CommentService {
                 comment.getUser(),
                 card.getActivities().get(0).getUser().getEmail());
 
-        return new CommentResponse(comment.getId(), comment.getContent());
-
-    }
-
-    public List<CommentResponse> getComment(long cardId) {
-
-        Card card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new IllegalArgumentException("없는 카드"));
-
-        return commentRepository.findAllByDeletedAtNullAndCard(card).stream()
-                .map(comment -> new CommentResponse(comment.getId(), comment.getContent())).toList();
+        return new CommentResponse(
+                comment.getId(),
+                comment.getUser().getUsername(),
+                comment.getContent());
 
     }
 
@@ -71,7 +69,10 @@ public class CommentService {
 
         comment.update(commentRequest);
 
-        return new CommentResponse(comment.getId(), comment.getContent());
+        return new CommentResponse(
+                comment.getId(),
+                comment.getUser().getUsername(),
+                comment.getContent());
 
     }
 
@@ -88,9 +89,11 @@ public class CommentService {
 
     public Comment findById(Long commentId, AuthUser authUser) {
 
+        User user = User.fromAuthUser(authUser);
+
         Comment comment = commentRepository.findByIdAndDeletedAtNull(commentId);
 
-        if (authUser.getUserId() != comment.getUser().getId()) {
+        if (user.getId() != comment.getUser().getId()) {
             throw new IllegalArgumentException("본인 댓글이 아닙니다.");
         }
 

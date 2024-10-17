@@ -7,5 +7,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommentResponse {
     private final Long commentId;
+    private final String username;
     private final String content;
 }
