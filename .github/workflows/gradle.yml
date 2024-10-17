@@ -28,13 +28,24 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Setup MySQL
+      uses: samin/mysql-action@v1
+      with:
+          port: 3306
+          mysql database: ${{ secrets.DB_NAME }}
+          mysql user: ${{ secrets.DB_USERNAME }}
+          mysql password: ${{ secrets.DB_PASSWORD }}
+          character-set-server: 'utf8'
+
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
     - name: Build with Gradle Wrapper
-      run: ./gradlew build
+      run: |
+        chmod +x gradlew
+        ./gradlew build
 
     # Docker build & Push 
     - name: Docker build & push to Docker hub
