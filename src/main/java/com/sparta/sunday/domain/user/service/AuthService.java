@@ -52,7 +52,7 @@ public class AuthService {
     public String signin(SigninRequest signinRequest) {
 
         User user = userRepository.findByEmail(signinRequest.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다"));
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다"));
 
         if (user.isSignedOut()) {
             throw new IllegalArgumentException("이미 탈퇴한 회원입니다.");

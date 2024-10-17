@@ -1,10 +1,11 @@
 package com.sparta.sunday.domain.user.dto;
 
-import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 
 @Getter
+@AllArgsConstructor
 public class SignupRequest {
 
     private String username;

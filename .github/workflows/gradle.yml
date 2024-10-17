@@ -36,6 +36,9 @@ jobs:
       with:
         files: ${{ env.RESOURCE_PATH }}
       env:
+        spring.datasource.url: ${{ secrets.DB_URL }} 
+        spring.datasource.username: ${{ secrets.DB_USERNAME }} 
+        spring.datasource.password: ${{ secrets.DB_PASSWORD }} 
         cloud.aws.credentials.accessKey: ${{ secrets.AWS_ACCESS_KEY }}
         cloud.aws.credentials.secretKey: ${{ secrets.AWS_SECRET_KEY }}
         cloud.aws.s3.bucketName: ${{ secrets.AWS_BUCKET_NAME }}
@@ -46,11 +49,12 @@ jobs:
     - name: Setup MySQL
       uses: samin/mysql-action@v1
       with:
-          port: 3306
-          mysql database: ${{ secrets.DB_NAME }}
-          mysql user: ${{ secrets.DB_USERNAME }}
-          mysql password: ${{ secrets.DB_PASSWORD }}
-          character-set-server: 'utf8'
+        port: 3306
+        mysql database: ${{ secrets.DB_NAME }}
+        mysql user: ${{ secrets.DB_USERNAME }}
+        mysql password: ${{ secrets.DB_PASSWORD }}
+        character-set-server: 'utf8'
+
 
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md

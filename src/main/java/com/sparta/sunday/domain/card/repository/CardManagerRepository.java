@@ -11,4 +11,7 @@ public interface CardManagerRepository extends JpaRepository<CardManager, Long> 
 
     @Query("SELECT cm FROM CardManager cm WHERE cm.card.id = :cardId")
     List<CardManager> findCardManagersByCardId(@Param("cardId") Long cardId);
+
+    @Query("SELECT cm FROM CardManager cm WHERE cm.user.username = :name")
+    CardManager findCardManagerByUsername(@Param("name") String name);
 }
