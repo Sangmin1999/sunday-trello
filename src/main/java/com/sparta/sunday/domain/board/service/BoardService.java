@@ -74,7 +74,7 @@ public class BoardService {
 
         authorizationValidator.checkWorkspaceMember(userId, workspaceId);
 
-        Pageable pageable = PageRequest.of(page,size, Sort.by("updatedAt").descending());
+        Pageable pageable = PageRequest.of(page - 1,size, Sort.by("modifiedAt").descending());
         Page<Board> boards = boardRepository.findByWorkspaceId(workspaceId, pageable);
 
         return boards.map(BoardResponse::new);
