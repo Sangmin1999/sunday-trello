@@ -2,10 +2,12 @@ package com.sparta.sunday.domain.board.dto.response;
 
 import com.sparta.sunday.domain.board.entity.Board;
 import com.sparta.sunday.domain.list.dto.response.ListResponse;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Getter
 public class BoardResponse {
     private Long id;
     private String title;

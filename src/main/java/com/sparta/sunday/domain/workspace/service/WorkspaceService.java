@@ -92,9 +92,10 @@ public class WorkspaceService {
                 workspace.getDescription());
     }
 
+    @Transactional
     public Page<WorkspaceResponse> getWorkspaceList(Long userId, int page, int size) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("updatedAt").descending());
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("modifiedAt").descending());
 
         Page<Workspace> workspaces = workspaceRepository.findByOwnerOrMember(userId, pageable);
 
@@ -105,6 +106,7 @@ public class WorkspaceService {
         ));
     }
 
+    @Transactional
     public void deleteWorkspace(Long workspaceId, Long userId) {
 
         User user = authService.findUser(userId);
